@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block page_title %}
+  {{article.title}}
+{% endblock %}
+
+    {% block page_heading %}
+    <h1 class="mt-4 mb-3">
+      {{article.title}}
+    </h1>
+    {% endblock %}
+
+    {% block page_breadcrumb %}
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="#">Домашняя страница</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'blog:home' %}">Блог сайта</a>
+      </li>
+      <li class="breadcrumb-item active">Статья: {{article.title}}</li>
+    </ol>
+    {% endblock %}
+
+    {% block page_content %}
+    <div class="row">
+
+      <!-- Post Content Column -->
+      <div class="col-lg-8">
+
+        <!-- Preview Image -->
+        {% if article.thumbnail %}
+          {% if 'https' in article.thumbnail.url %}
+          <img class="img-fluid rounded" src="{{article.thumbnail}}" alt="article-thumbnail">
+          {% else %}
+          <img class="img-fluid rounded" src="{{article.thumbnail.url}}" alt="article-thumbnail">
+          {% endif %}
+        {% endif %}
+
+        <hr>
+
+        <!-- Date/Time -->
+        <p>
+          Опубликовано {{ article.created }} пользователем
+          <a href="#">Инкогнито</a>
+        </p>
+
+        <hr>
+
+        <!-- Post Content -->
+        {{article.text|linebreaks}}
+
+        <hr>
+
+        <!-- Comments Form -->
+        <div class="card my-4">
+          <h5 class="card-header">Оставить комментарий:</h5>
+          <div class="card-body">
+            <form method="post">
+              <div class="form-group">
+                {% csrf_token %}
+                {{commentary_form.text}}
+              </div>
+              <button type="submit" class="btn btn-primary">Добавить комментарий</button>
+            </form>
+          </div>
+        </div>
+
+        {% for commentary in commentaries %}
+        <div class="media mb-4">
+          <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
+          <div class="media-body">
+            <h5 class="mt-0">{{commentary.username}}</h5>
+            {{commentary.text}}
+          </div>
+        </div>
+        {% endfor %}
+
+        <!-- Comment with nested comments -->
+        <!-- <div class="media mb-4">
+          <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
+          <div class="media-body">
+            <h5 class="mt-0">Commenter Name</h5>
+            Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
+
+            <div class="media mt-4">
+              <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
+              <div class="media-body">
+                <h5 class="mt-0">Commenter Name</h5>
+                Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
+              </div>
+            </div>
+
+            <div class="media mt-4">
+              <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
+              <div class="media-body">
+                <h5 class="mt-0">Commenter Name</h5>
+                Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
+              </div>
+            </div>
+
+          </div>
+        </div> -->
+
+      </div>
+
+      <!-- Sidebar Widgets Column -->
+      <div class="col-md-4">
+
+        <!-- Search Widget -->
+        <div class="card mb-4">
+          <h5 class="card-header">Search</h5>
+          <div class="card-body">
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Search for...">
+              <span class="input-group-btn">
+                <button class="btn btn-secondary" type="button">Go!</button>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Categories Widget -->
+        <div class="card my-4">
+          <h5 class="card-header">Categories</h5>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-lg-6">
+                <ul class="list-unstyled mb-0">
+                {% for category in categories|slice:":10" %}
+                  <li>
+                    <a href="#">{{category.name}}</a>
+                  </li>
+                {% endfor %}
+                </ul>
+              </div>
+              <div class="col-lg-6">
+                <ul class="list-unstyled mb-0">
+                {% for category in categories|slice:"10:" %}
+                  <li>
+                    <a href="#">{{category.name}}</a>
+                  </li>
+                {% endfor %}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Side Widget -->
+        <div class="card my-4">
+          <h5 class="card-header">Side Widget</h5>
+          <div class="card-body">
+            You can put anything you want inside of these side widgets. They are easy to use, and feature the new Bootstrap 4 card containers!
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+    {% endblock %}

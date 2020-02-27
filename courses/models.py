@@ -3,15 +3,21 @@ from django.contrib.auth.models import User
 
 class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    avatar = models.ImageField(upload_to='static/avatars/courses/', blank=True)
+    avatar = models.ImageField(upload_to='avatars/courses/', blank=True, null=True)
+
+    def __str__(self):
+        return self.user.username
 
 class Teacher(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    avatar = models.ImageField(upload_to='static/avatars/courses/', blank=True)
+    avatar = models.ImageField(upload_to='avatars/courses/', blank=True, null=True)
+
+    def __str__(self):
+        return self.user.username
 
 class Course(models.Model):
     title = models.CharField(max_length=50, unique=False)
-    thumbnail = models.ImageField(upload_to='static/thumbnails/courses/', blank=True)
+    thumbnail = models.ImageField(upload_to='thumbnails/courses/', blank=True, null=True)
     overview = models.TextField(blank=True)
     prereqs = models.TextField(blank=True)
     teachers = models.ManyToManyField(Teacher)
@@ -34,7 +40,7 @@ class CourseChapter(models.Model):
 
 class Lesson(models.Model):
     title = models.CharField(max_length=50, unique=False)
-    thumbnail = models.ImageField(upload_to='static/thumbnails/courses/lessons/', blank=True)
+    thumbnail = models.ImageField(upload_to='thumbnails/courses/lessons/', blank=True, null=True)
     chapter = models.ForeignKey(CourseChapter, on_delete=models.CASCADE)
     number = models.PositiveSmallIntegerField()
     estimated_time_min = models.PositiveSmallIntegerField()
@@ -76,7 +82,7 @@ class HomeWorkRespond(models.Model):
     homework = models.ForeignKey(Homework, on_delete=models.CASCADE)
     student = models.ForeignKey(Student, null=True, on_delete=models.CASCADE)
     text = models.TextField()
-    file_attachment = models.FileField(blank=True)
+    file_attachment = models.FileField(blank=True, upload_to='files/courses/homeworks/')
     is_public = models.BooleanField(default=True)
     is_accepted = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
