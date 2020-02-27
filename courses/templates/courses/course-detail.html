@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block page_title %}
+  Доступные курсы
+{% endblock %}
+
+    {% block page_heading %}
+    <h1 class="mt-4 mb-3">Курс: {{course.title}}
+    </h1>
+    {% endblock %}
+
+    {% block page_breadcrumb %}
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="#">Домашняя страница</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'courses:list' %}">Доступные курсы</a>
+      </li>
+      <li class="breadcrumb-item active">Курс: {{course.title}}</li>
+    </ol>
+    {% endblock %}
+
+    {% block page_content %}
+    <!-- Portfolio Item Row -->
+    <div class="row mb-4">
+
+      
+
+      <div class="col-md-12">
+        {% if course.thumbnail %}
+          {% if 'http' in course.thumbnail.url %}
+          <img class="img-fluid" src="{{course.thumbnail}}" alt="course_thumbnail">
+          {% else %}
+          <img class="img-fluid" src="{{course.thumbnail.url}}" alt="course_thumbnail">
+          {% endif %}
+        {% endif %}
+        <p>{{course.overview|linebreaks}}</p>
+        {% if course.prereqs %}
+        <h4 class="my-3">Необходимые знания:</h4>
+        {{course.prereqs|linenumbers|linebreaksbr}}
+        {% endif %}
+        {% if course.teachers.all %}
+        <h4 class="my-3">Преподаватели курса:</h4>
+        {{ course.teachers.all|join:", " }}
+        {% endif %}
+        {% if course.students.all %}
+        <h5 class="my-3">Количество участников курса на данный момент: {{ course.students.count }}</h5>
+        {% endif %}
+      </div>
+
+    </div>
+    <!-- /.row -->
+    {% endblock %}

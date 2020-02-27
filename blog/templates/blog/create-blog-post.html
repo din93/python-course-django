@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block page_title %}
+  Написание статьи
+{% endblock %}
+
+    {% block page_heading %}
+    <h1 class="mt-4 mb-3">
+      Написание статьи
+    </h1>
+    {% endblock %}
+
+    {% block page_breadcrumb %}
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="#">Домашняя страница</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'blog:home' %}">Блог сайта</a>
+      </li>
+      <li class="breadcrumb-item active">Написание статьи</li>
+    </ol>
+    {% endblock %}
+
+    {% block page_content %}
+    <!-- Contact Form -->
+    <!-- In order to set the email address and subject line for the contact form go to the bin/contact_me.php file. -->
+    <div class="row">
+      <div class="col-lg-8 mb-4">
+        <form enctype="multipart/form-data" method="post" action="{% url 'blog:create' %}" name="sentMessage" id="contactForm" novalidate>
+          {% csrf_token %}
+          {% for field in form %}
+          <div class="control-group form-group">
+            <div class="controls">
+              {{ field.errors }}
+              {{ field.label_tag }}
+              {{ field }}
+            </div>
+          </div>
+          {% endfor %}
+          <button type="submit" class="btn btn-primary" id="sendMessageButton">Добавить в блог</button>
+        </form>
+      </div>
+
+    </div>
+    {% endblock %}

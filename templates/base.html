@@ -1,0 +1,107 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>{% block page_title %}Page title here{% endblock %}</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="{% static 'css/modern-business.css' %}" rel="stylesheet">
+
+</head>
+
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="#">Edu course</a>
+      <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="#">О нас</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Профиль</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Обращение</a>
+          </li>
+          {% url 'courses:list' as courses_list %}
+          {% url 'courses:detail' as courses_detail %}
+          {% url 'courses:lessons' as courses_lessons %}
+          <li class="nav-item {% if request.get_full_path in courses_list %}active{% endif %}">
+            <a class="nav-link" href="{% url 'courses:list' %}">Курсы</a>
+          </li>
+          {% url 'blog:home' as blog_home %}
+          {% url 'blog:create' as create_post %}
+          {% url 'blog:detail' as blog_detail %}
+          <li class="nav-item dropdown {% if blog_home in request.get_full_path %}active{% endif %}">
+            <a class="nav-link dropdown-toggle" href="{% url 'blog:home' %}" id="navbarDropdownBlog" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Блог сайта
+            </a>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownBlog">
+              <a class="dropdown-item {% if request.get_full_path == blog_home %}active{% endif %}" href="{% url 'blog:home' %}">Главная</a>
+              <a class="dropdown-item {% if request.get_full_path == create_post %}active{% endif %}" href="{% url 'blog:create' %}">Написать статью</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Page Content -->
+  <div class="container">
+
+    <!-- Page Heading/Breadcrumbs -->
+    {% block page_heading %}
+    <h1 class="mt-4 mb-3">Page heading
+      <small>Subheading</small>
+    </h1>
+    {% endblock %}
+
+    {% block page_breadcrumb %}
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="#">Home</a>
+      </li>
+      <li class="breadcrumb-item active">Active page</li>
+    </ol>
+    {% endblock %}
+
+    {% block page_content %}
+    <div class="row">
+      <div class="col-md-12"></div>
+    </div>
+    {% endblock %}
+
+  </div>
+  <!-- /.container -->
+
+  <!-- Footer -->
+  <footer class="py-5 bg-dark">
+    <div class="container">
+      <p class="m-0 text-center text-white">Copyright &copy; Your Website 2019</p>
+    </div>
+    <!-- /.container -->
+  </footer>
+
+  <!-- Bootstrap core JavaScript -->
+  <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+  <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block page_title %}
+  Доступные курсы
+{% endblock %}
+
+    {% block page_heading %}
+    <h1 class="mt-4 mb-3">Курс: {{course.title}}
+    </h1>
+    {% endblock %}
+
+    {% block page_breadcrumb %}
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="#">Домашняя страница</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'courses:list' %}">Доступные курсы</a>
+      </li>
+      <li class="breadcrumb-item active">Лекции курса "{{course.title}}":</li>
+    </ol>
+    {% endblock %}
+
+    {% block page_content %}
+    <!-- Content Row -->
+    <div class="row">
+      <!-- Sidebar Column -->
+      <div class="col-lg-3 mb-4">
+          {% for chapter_lessons in lessons_tree %}
+          <div class="list-group">
+            <a
+              href="{% url 'courses:lessons' course_id=course.id %}?lesson_id={{chapter_lessons.0.id}}"
+              class="list-group-item list-group-item-primary border-0"
+            >Блок {{chapter_lessons.0.chapter.number}}: {{chapter_lessons.0.chapter.title}}</a>
+            {% for lesson in chapter_lessons %}
+              <a
+                href="{% url 'courses:lessons' course_id=course.id %}?lesson_id={{lesson.id}}"
+                class="list-group-item list-group-item-{% if active_lesson == lesson %}default{% else %}light{% endif %}"
+              >Занятие {{lesson.number}}: {{lesson.title}}</a>
+            {% endfor %}
+          </div>
+          <br>
+          {% endfor %}
+      </div>
+      <!-- Content Column -->
+      <div class="col-lg-9 mb-4">
+        <h2>{{active_lesson.title}}</h2>
+        <p>{{active_lesson.description}}</p>
+        <p>Ориентировочное время освоения: {{active_lesson.estimated_time_min}} минут</p>
+        <h4>Вопросы:</h4>
+        <ul>
+          {% for question_quiz_options in quiz_options_tree %}
+          <li>{{question_quiz_options.0.question.text}} ({{question_quiz_options.0.question.points}} очков)</li>
+          <ul>
+            {% for quiz_option in question_quiz_options %}
+            <li>{{quiz_option.text}} ({{ quiz_option.is_right }})</li>
+            {% endfor %}
+          </ul>
+          {% endfor %}
+        </ul>
+        {% if lesson_homework %}
+          <h4>Домашнее задание ({{lesson_homework.points}} очков):</h4>
+          <p>{{lesson_homework.text}}</p>
+          <div class="card my-4">
+            <h5 class="card-header">Ваш ответ:</h5>
+            <div class="card-body">
+              {% if homework_respond %}
+              <p>{{homework_respond.text}}</p>
+              <p>Отправлено {{homework_respond.created}}</p>
+              <span class="badge">{% if homework_respond.is_accepted %}Принят{% else %}Ожидает проверки{% endif %}</span>
+              {% else %}
+              <form enctype="multipart/form-data" method="post">
+                <div class="form-group">
+                  {% csrf_token %}
+                  {{form.text}}
+                  <br>
+                  {{form.file_attachment}}
+                </div>
+                <button type="submit" class="btn btn-primary">Отправить ответ</button>
+              </form>
+              {% endif %}
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+    <!-- /.row -->
+    {% endblock %}
+  
