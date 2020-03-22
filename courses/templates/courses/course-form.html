@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block page_title %}
+  Форма курса
+{% endblock %}
+
+    {% block page_heading %}
+    <h1 class="mt-4 mb-3">
+      Форма курса
+    </h1>
+    {% endblock %}
+
+    {% block page_breadcrumb %}
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="/">Домашняя страница</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'courses:list' %}">Доступные курсы</a>
+      </li>
+      <li class="breadcrumb-item active">Форма курса</li>
+    </ol>
+    {% endblock %}
+
+    {% block page_content %}
+    <div class="row">
+      <div class="col-lg-8 mb-4">
+        <form enctype="multipart/form-data" method="post" novalidate>
+          {% csrf_token %}
+          {% for field in form %}
+          <div class="control-group form-group">
+            <div class="controls">
+              {{ field.errors }}
+              {{ field.label_tag }}
+              {{ field }}
+            </div>
+          </div>
+          {% endfor %}
+          <button type="submit" class="btn btn-primary" >Готово</button>
+        </form>
+      </div>
+
+    </div>
+    {% endblock %}

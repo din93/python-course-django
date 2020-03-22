@@ -5,14 +5,19 @@
 {% endblock %}
 
     {% block page_heading %}
-    <h1 class="mt-4 mb-3">Курс: {{course.title}}
+    <h1 class="mt-4 mb-3">
+      Курс: {{course.title}}
+      <br>
+      <small>
+        <a href="{% url 'courses:detail' pk=course.pk %}">О курсе</a>
+      </small>
     </h1>
     {% endblock %}
 
     {% block page_breadcrumb %}
     <ol class="breadcrumb">
       <li class="breadcrumb-item">
-        <a href="#">Домашняя страница</a>
+        <a href="/">Домашняя страница</a>
       </li>
       <li class="breadcrumb-item">
         <a href="{% url 'courses:list' %}">Доступные курсы</a>
@@ -26,55 +31,166 @@
     <div class="row">
       <!-- Sidebar Column -->
       <div class="col-lg-3 mb-4">
-          {% for chapter_lessons in lessons_tree %}
-          <div class="list-group">
-            <a
-              href="{% url 'courses:lessons' course_id=course.id %}?lesson_id={{chapter_lessons.0.id}}"
-              class="list-group-item list-group-item-primary border-0"
-            >Блок {{chapter_lessons.0.chapter.number}}: {{chapter_lessons.0.chapter.title}}</a>
-            {% for lesson in chapter_lessons %}
+          {% for chapter in course.get_chapters %}
+
+          <div class="modal" tabindex="-1" id="updateChapter{{chapter.pk}}" role="dialog">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header bg-info">
+                  <h5 class="modal-title">Изменение блока {{chapter.number}}: {{chapter.title}}</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <form method="post" action="{% url 'courses:update_chapter' pk=chapter.pk %}">
+                  {% csrf_token %}
+                  <div class="modal-body">
+                    <div class="row">
+                      <div class="col-2 pr-0">{{chapter_form.number}}</div>
+                      <div class="col-10 pl-1">{{chapter_form.title}}</div>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary" >Готово</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <div class="list-group border">
+
+            <ul class="list-group list-group-horizontal">
+              <li class="list-group-item list-group-item-primary border-0">Блок {{chapter.number}}: {{chapter.title}}</li>
+              <button type="button" class="list-group-item list-group-item-primary border-0 btn rounded-0 btn-default" data-toggle="modal" data-target="#updateChapter{{chapter.pk}}">
+                &#9998;
+              </button>
+            </ul>
+
+            {% for lesson in chapter.get_lessons %}
               <a
-                href="{% url 'courses:lessons' course_id=course.id %}?lesson_id={{lesson.id}}"
-                class="list-group-item list-group-item-{% if active_lesson == lesson %}default{% else %}light{% endif %}"
+                href="{% url 'courses:lessons' pk=course.pk %}?lesson_id={{lesson.id}}"
+                class="btn rounded-0 btn-{% if active_lesson == lesson %}info{% else %}outline-default{% endif %}"
               >Занятие {{lesson.number}}: {{lesson.title}}</a>
             {% endfor %}
+
+            <div class="modal" tabindex="-1" id="addLesson{{chapter.id}}" role="dialog">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header bg-info">
+                    <h5 class="modal-title">Добавление занятия</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <form method="post" action="{% url 'courses:create_lesson' chapter_id=chapter.id %}">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                      {% for field in lesson_form %}
+                      <div class="control-group form-group">
+                        <div class="controls">
+                          {{ field.errors }}
+                          {{ field.label_tag }}
+                          {{ field }}
+                        </div>
+                      </div>
+                      {% endfor %}
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                      <button type="submit" class="btn btn-primary" >Добавить</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <button type="button" class="btn btn-light rounded-0" data-toggle="modal" data-target="#addLesson{{chapter.id}}">
+              Добавить занятие
+            </button>
+
           </div>
           <br>
           {% endfor %}
+
+          <div class="modal" tabindex="-1" id="addChapter" role="dialog">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header bg-info">
+                  <h5 class="modal-title">Добавление блока</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <form method="post" action="{% url 'courses:create_chapter' course_id=course.id %}">
+                  {% csrf_token %}
+                  <div class="modal-body">
+                    <div class="row">
+                      <div class="col-2 pr-0">{{chapter_form.number}}</div>
+                      <div class="col-10 pl-1">{{chapter_form.title}}</div>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary" >Добавить</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-info" data-toggle="modal" data-target="#addChapter">
+            Добавить блок
+          </button>
+
       </div>
+
       <!-- Content Column -->
       <div class="col-lg-9 mb-4">
-        <h2>{{active_lesson.title}}</h2>
+
+        <h2>
+          {{active_lesson.title}}
+          <br>
+          <small><a href="{% url 'courses:update_lesson' pk=active_lesson.pk %}">Внести правки</a></small>
+          <small>/ <a href="#">Добавить вопрос (WIP)</a></small>
+        </h2>
         <p>{{active_lesson.description}}</p>
         <p>Ориентировочное время освоения: {{active_lesson.estimated_time_min}} минут</p>
-        <h4>Вопросы:</h4>
-        <ul>
-          {% for question_quiz_options in quiz_options_tree %}
-          <li>{{question_quiz_options.0.question.text}} ({{question_quiz_options.0.question.points}} очков)</li>
+        {% if active_lesson.get_questions %}
+          <h4>Вопросы:</h4>
           <ul>
-            {% for quiz_option in question_quiz_options %}
-            <li>{{quiz_option.text}} ({{ quiz_option.is_right }})</li>
+            {% for quiz_question in active_lesson.get_questions %}
+            <li>{{quiz_question.text}} ({{quiz_question.points}} очков)</li>
+            <ul>
+              {% for quiz_option in quiz_question.get_options %}
+              <li>{{quiz_option.text}} ({{ quiz_option.is_right }})</li>
+              {% endfor %}
+            </ul>
             {% endfor %}
           </ul>
-          {% endfor %}
-        </ul>
-        {% if lesson_homework %}
-          <h4>Домашнее задание ({{lesson_homework.points}} очков):</h4>
-          <p>{{lesson_homework.text}}</p>
+        {% endif %}
+
+        {% if active_lesson.get_homework %}
+          <h4>
+            Домашнее задание ({{active_lesson.get_homework.points}} очков):
+            <small>
+              <a href="{% url 'courses:update_homework' pk=active_lesson.get_homework.pk %}">Внести правки</a>
+            </small>
+          </h4>
+          <p>{{active_lesson.get_homework.text}}</p>
           <div class="card my-4">
             <h5 class="card-header">Ваш ответ:</h5>
             <div class="card-body">
-              {% if homework_respond %}
-              <p>{{homework_respond.text}}</p>
-              <p>Отправлено {{homework_respond.created}}</p>
-              <span class="badge">{% if homework_respond.is_accepted %}Принят{% else %}Ожидает проверки{% endif %}</span>
+              {% if active_lesson.get_homework.get_respond %}
+              <p>{{active_lesson.get_homework.get_respond.text}}</p>
+              <p>Отправлено {{active_lesson.get_homework.get_respond.created}}</p>
+              <span class="badge">{% if active_lesson.get_homework.get_respond.is_accepted %}Принят{% else %}Ожидает проверки{% endif %}</span>
               {% else %}
-              <form enctype="multipart/form-data" method="post">
+              <form enctype="multipart/form-data" action="{% url 'courses:hw_respond' course_id=course.id lesson_id=active_lesson.id %}" method="post">
                 <div class="form-group">
                   {% csrf_token %}
-                  {{form.text}}
+                  {{hw_respond_form.text}}
                   <br>
-                  {{form.file_attachment}}
+                  {{hw_respond_form.file_attachment}}
                 </div>
                 <button type="submit" class="btn btn-primary">Отправить ответ</button>
               </form>
@@ -82,6 +198,7 @@
             </div>
           </div>
         {% endif %}
+        
       </div>
     </div>
     <!-- /.row -->

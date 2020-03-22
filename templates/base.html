@@ -24,7 +24,7 @@
   <!-- Navigation -->
   <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark fixed-top">
     <div class="container">
-      <a class="navbar-brand" href="#">Edu course</a>
+      <a class="navbar-brand" href="/">Edu course</a>
       <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -46,16 +46,10 @@
             <a class="nav-link" href="{% url 'courses:list' %}">Курсы</a>
           </li>
           {% url 'blog:home' as blog_home %}
-          {% url 'blog:create' as create_post %}
-          {% url 'blog:detail' as blog_detail %}
-          <li class="nav-item dropdown {% if blog_home in request.get_full_path %}active{% endif %}">
-            <a class="nav-link dropdown-toggle" href="{% url 'blog:home' %}" id="navbarDropdownBlog" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <li class="nav-item {% if blog_home in request.get_full_path %}active{% endif %}">
+            <a class="nav-link" href="{% url 'blog:home' %}">
               Блог сайта
             </a>
-            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownBlog">
-              <a class="dropdown-item {% if request.get_full_path == blog_home %}active{% endif %}" href="{% url 'blog:home' %}">Главная</a>
-              <a class="dropdown-item {% if request.get_full_path == create_post %}active{% endif %}" href="{% url 'blog:create' %}">Написать статью</a>
-            </div>
           </li>
         </ul>
       </div>

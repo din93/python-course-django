@@ -1,33 +1,33 @@
 {% extends "base.html" %}
 
 {% block page_title %}
-  Написание статьи
+  Форма занятия
 {% endblock %}
 
     {% block page_heading %}
     <h1 class="mt-4 mb-3">
-      Написание статьи
+      Форма занятия
     </h1>
     {% endblock %}
 
     {% block page_breadcrumb %}
     <ol class="breadcrumb">
       <li class="breadcrumb-item">
-        <a href="#">Домашняя страница</a>
+        <a href="/">Домашняя страница</a>
       </li>
       <li class="breadcrumb-item">
-        <a href="{% url 'blog:home' %}">Блог сайта</a>
+        <a href="{% url 'courses:list' %}">Доступные курсы</a>
       </li>
-      <li class="breadcrumb-item active">Написание статьи</li>
+      <li class="breadcrumb-item"><a href="{% url 'courses:lessons' pk=object.chapter.course.pk %}">Курс "{{object.chapter.course.title}}"</a></li>
+      <li class="breadcrumb-item">Блок "{{object.chapter.number}}: {{object.chapter.title}}"</li>
+      <li class="breadcrumb-item active">Форма занятия "{{object.title}}"</li>
     </ol>
     {% endblock %}
 
     {% block page_content %}
-    <!-- Contact Form -->
-    <!-- In order to set the email address and subject line for the contact form go to the bin/contact_me.php file. -->
     <div class="row">
       <div class="col-lg-8 mb-4">
-        <form enctype="multipart/form-data" method="post" action="{% url 'blog:create' %}" name="sentMessage" id="contactForm" novalidate>
+        <form enctype="multipart/form-data" method="post" novalidate>
           {% csrf_token %}
           {% for field in form %}
           <div class="control-group form-group">
@@ -38,9 +38,8 @@
             </div>
           </div>
           {% endfor %}
-          <button type="submit" class="btn btn-primary" id="sendMessageButton">Добавить в блог</button>
+          <button type="submit" class="btn btn-primary" >Готово</button>
         </form>
       </div>
-
     </div>
     {% endblock %}

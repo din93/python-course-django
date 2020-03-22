@@ -13,7 +13,7 @@
     {% block page_breadcrumb %}
     <ol class="breadcrumb">
       <li class="breadcrumb-item">
-        <a href="#">Домашняя страница</a>
+        <a href="/">Домашняя страница</a>
       </li>
       <li class="breadcrumb-item">
         <a href="{% url 'blog:home' %}">Блог сайта</a>
@@ -24,6 +24,28 @@
 
     {% block page_content %}
     <div class="row">
+
+      <div class="modal" tabindex="-1" id="deleteConfirm" role="dialog">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header bg-danger">
+              <h5 class="modal-title">Подтвердите удаление статьи</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+              <form method="post" action="{% url 'blog:delete' pk=article.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger" >Удалить</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Post Content Column -->
       <div class="col-lg-8">
@@ -52,11 +74,19 @@
 
         <hr>
 
+        <a href="{% url 'blog:update' pk=article.pk %}" class="btn btn-warning">Редактировать статью</a>
+        <!-- <a href="{% url 'blog:delete' pk=article.pk %}" class="btn btn-danger">Удалить статью</a> -->
+        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteConfirm">
+          Удалить статью
+        </button>
+
+        <hr>
+
         <!-- Comments Form -->
         <div class="card my-4">
           <h5 class="card-header">Оставить комментарий:</h5>
           <div class="card-body">
-            <form method="post">
+            <form method="post" action="{% url 'blog:create_comment' article_id=article.id %}">
               <div class="form-group">
                 {% csrf_token %}
                 {{commentary_form.text}}
@@ -127,7 +157,7 @@
             <div class="row">
               <div class="col-lg-6">
                 <ul class="list-unstyled mb-0">
-                {% for category in categories|slice:":10" %}
+                {% for category in article.categories.all|slice:":10" %}
                   <li>
                     <a href="#">{{category.name}}</a>
                   </li>
