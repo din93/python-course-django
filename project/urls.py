@@ -17,11 +17,13 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+import courses
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('blog/', include(('blog.urls', 'blog'), namespace='blog')),
     path('courses/', include(('courses.urls', 'courses'), namespace='courses')),
+    path('', courses.views.CoursesListView.as_view()),
 ]
 
 if settings.DEBUG:
