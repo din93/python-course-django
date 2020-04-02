@@ -64,7 +64,7 @@
         <!-- Date/Time -->
         <p>
           Опубликовано {{ article.created }} пользователем
-          <a href="#">Инкогнито</a>
+          <a href="#">{{ article.author }}</a>
         </p>
 
         <hr>
@@ -74,11 +74,16 @@
 
         <hr>
 
-        <a href="{% url 'blog:update' pk=article.pk %}" class="btn btn-warning">Редактировать статью</a>
-        <!-- <a href="{% url 'blog:delete' pk=article.pk %}" class="btn btn-danger">Удалить статью</a> -->
+        {% if article.author == user %}
+        <a href="{% url 'blog:update' pk=article.pk %}" class="btn btn-warning">
+          Редактировать статью
+        </a>
+        {% endif %}
+        {% if article.author == user or user.is_superuser %}
         <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteConfirm">
           Удалить статью
         </button>
+        {% endif %}
 
         <hr>
 
@@ -100,7 +105,7 @@
         <div class="media mb-4">
           <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
           <div class="media-body">
-            <h5 class="mt-0">{{commentary.username}}</h5>
+            <h5 class="mt-0">{{commentary.author}}</h5>
             {{commentary.text}}
           </div>
         </div>

@@ -10,8 +10,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         num_categories = options['num_categories'][0]
-        category_names = requests.get(f'http://names.drycodes.com/{num_categories}?nameOptions=objects').json()
-        for category_name in category_names:
+        category_names = requests.get(f'http://names.drycodes.com/{num_categories}?nameOptions=planets').json()
+        for category_name in list(set(category_names)):
             description = requests.get(f'https://baconipsum.com/api/?type=meat-and-filler&sentences={random.randrange(1, 4)}&format=text').text
 
             new_category = Category(name=category_name, description=description)

@@ -7,10 +7,6 @@
     {% block page_heading %}
     <h1 class="mt-4 mb-3">
       Курс: {{course.title}}
-      <br>
-      <small>
-        <a href="{% url 'courses:detail' pk=course.pk %}">О курсе</a>
-      </small>
     </h1>
     {% endblock %}
 
@@ -22,7 +18,12 @@
       <li class="breadcrumb-item">
         <a href="{% url 'courses:list' %}">Доступные курсы</a>
       </li>
-      <li class="breadcrumb-item active">Лекции курса "{{course.title}}":</li>
+      <li class="breadcrumb-item active">
+        Лекции курса "{{course.title}}":
+        (<span>
+          <a href="{% url 'courses:detail' pk=course.pk %}">О курсе</a>
+        </span>)
+      </li>
     </ol>
     {% endblock %}
 
@@ -63,9 +64,11 @@
 
             <ul class="list-group list-group-horizontal">
               <li class="list-group-item list-group-item-primary border-0">Блок {{chapter.number}}: {{chapter.title}}</li>
+              {% if user.is_superuser or user in course.teachers.all %}
               <button type="button" class="list-group-item list-group-item-primary border-0 btn rounded-0 btn-default" data-toggle="modal" data-target="#updateChapter{{chapter.pk}}">
                 &#9998;
               </button>
+              {% endif %}
             </ul>
 
             {% for lesson in chapter.get_lessons %}
@@ -75,6 +78,7 @@
               >Занятие {{lesson.number}}: {{lesson.title}}</a>
             {% endfor %}
 
+            {% if user.is_superuser %}
             <div class="modal" tabindex="-1" id="addLesson{{chapter.id}}" role="dialog">
               <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -108,11 +112,13 @@
             <button type="button" class="btn btn-light rounded-0" data-toggle="modal" data-target="#addLesson{{chapter.id}}">
               Добавить занятие
             </button>
+            {% endif %}
 
           </div>
           <br>
           {% endfor %}
 
+          {% if user.is_superuser %}
           <div class="modal" tabindex="-1" id="addChapter" role="dialog">
             <div class="modal-dialog" role="document">
               <div class="modal-content">
@@ -141,6 +147,7 @@
           <button type="button" class="btn btn-info" data-toggle="modal" data-target="#addChapter">
             Добавить блок
           </button>
+          {% endif %}
 
       </div>
 
@@ -149,9 +156,11 @@
 
         <h2>
           {{active_lesson.title}}
+          {% if user.is_superuser or user in course.teachers.all %}
           <br>
           <small><a href="{% url 'courses:update_lesson' pk=active_lesson.pk %}">Внести правки</a></small>
           <small>/ <a href="#">Добавить вопрос (WIP)</a></small>
+          {% endif %}
         </h2>
         <p>{{active_lesson.description}}</p>
         <p>Ориентировочное время освоения: {{active_lesson.estimated_time_min}} минут</p>
@@ -172,19 +181,18 @@
         {% if active_lesson.get_homework %}
           <h4>
             Домашнее задание ({{active_lesson.get_homework.points}} очков):
+            {% if user.is_superuser or user in course.teachers.all %}
             <small>
               <a href="{% url 'courses:update_homework' pk=active_lesson.get_homework.pk %}">Внести правки</a>
             </small>
+            {% endif %}
           </h4>
           <p>{{active_lesson.get_homework.text}}</p>
+          
+          {% if user not in active_lesson.get_homework.get_responded_students %}
           <div class="card my-4">
             <h5 class="card-header">Ваш ответ:</h5>
             <div class="card-body">
-              {% if active_lesson.get_homework.get_respond %}
-              <p>{{active_lesson.get_homework.get_respond.text}}</p>
-              <p>Отправлено {{active_lesson.get_homework.get_respond.created}}</p>
-              <span class="badge">{% if active_lesson.get_homework.get_respond.is_accepted %}Принят{% else %}Ожидает проверки{% endif %}</span>
-              {% else %}
               <form enctype="multipart/form-data" action="{% url 'courses:hw_respond' course_id=course.id lesson_id=active_lesson.id %}" method="post">
                 <div class="form-group">
                   {% csrf_token %}
@@ -194,9 +202,21 @@
                 </div>
                 <button type="submit" class="btn btn-primary">Отправить ответ</button>
               </form>
-              {% endif %}
             </div>
           </div>
+          {% endif %}
+          
+          {% for hw_respond in active_lesson.get_homework.get_responds %}
+          <div class="card my-4">
+            <h5 class="card-header">Ответ ученика {{hw_respond.student}}</h5>
+            <div class="card-body">
+              <p>{{hw_respond.text}}</p>
+              <p>Отправлено {{hw_respond.created}}</p>
+              <span class="badge">{% if hw_respond.is_accepted %}Принят{% else %}Ожидает проверки{% endif %}</span>
+            </div>
+          </div>
+          {% endfor %}
+          
         {% endif %}
         
       </div>

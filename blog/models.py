@@ -1,4 +1,5 @@
 from django.db import models
+from users.models import CoursesUser
 
 class TimeStamp(models.Model):
     created = models.DateTimeField(auto_now_add=True)
@@ -20,19 +21,27 @@ class Category(TimeStamp):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name_plural = 'Categories'
+
 class Article(TimeStamp, Hideable):
     title = models.CharField('Название статьи', max_length=50, unique=False)
     thumbnail = models.ImageField('Картинка статьи', upload_to='thumbnails/blog/', blank=True, null=True)
     text = models.TextField('Текст статьи', blank=True)
     categories = models.ManyToManyField(Category)
+    author = models.ForeignKey(CoursesUser, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.title
 
 class Commentary(TimeStamp, Hideable):
+    author = models.ForeignKey(CoursesUser, on_delete=models.CASCADE)
     username = models.CharField('Пользователь', max_length=50)
     text = models.CharField('Текст комментария', max_length=200)
     article = models.ForeignKey(Article, on_delete=models.CASCADE)
 
     def __str__(self):
         return f'From "{self.username}": {self.text}'
+
+    class Meta:
+        verbose_name_plural = 'Commentaries'

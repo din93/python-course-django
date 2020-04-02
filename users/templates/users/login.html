@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block page_title %}
+  Вход на сайт
+{% endblock %}
+
+{% block page_style %}
+<style>
+    :root {
+    --input-padding-x: 1.5rem;
+    --input-padding-y: .75rem;
+    }
+
+    body {
+    background: #a0b6cc;
+    }
+
+    .card-signin {
+    border: 0;
+    border-radius: 1rem;
+    box-shadow: 0 0.5rem 1rem 0 rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    }
+
+    .card-signin .card-title {
+    margin-bottom: 2rem;
+    font-weight: 300;
+    font-size: 1.5rem;
+    }
+
+    .card-signin .card-img-left {
+    width: 45%;
+    /* Link to your background image using in the property below! */
+    background: scroll center url('https://source.unsplash.com/WEQbe2jBg40/414x512');
+    background-size: cover;
+    }
+
+    .card-signin .card-body {
+    padding: 2rem;
+    }
+
+    .form-signin {
+    width: 100%;
+    }
+
+    .form-signin .btn {
+    font-size: 80%;
+    border-radius: 5rem;
+    letter-spacing: .1rem;
+    font-weight: bold;
+    padding: 1rem;
+    transition: all 0.2s;
+    }
+
+    .form-group input {
+    display: block;
+    width: 100%;
+    height: calc(1.5em + .75rem + 2px);
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    }
+</style>
+{% endblock %}
+
+{% block page_heading %}{% endblock %}
+
+{% block page_breadcrumb %}{% endblock %}
+    
+{% block page_content %}
+    <body>
+        <div class="container">
+        <div class="row">
+            <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
+            <div class="card card-signin my-5">
+                <div class="card-body">
+                    <h5 class="card-title text-center">Вход</h5>
+                <form class="form-signin" method="POST">
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="control-group form-group">
+                        <div class="controls">
+                        {{ field.errors }}
+                        {{ field.label_tag }}
+                        <br>
+                        {{ field }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                    <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">Войти</button>
+                </form>
+                </div>
+            </div>
+            </div>
+        </div>
+        </div>
+    </body>
+{% endblock %}
+
+{% block page_footer %}{% endblock %}

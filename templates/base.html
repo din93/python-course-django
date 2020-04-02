@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 
 <head>
 
@@ -16,6 +16,7 @@
 
   <!-- Custom styles for this template -->
   <link href="{% static 'css/modern-business.css' %}" rel="stylesheet">
+  {% block page_style %}{% endblock %}
 
 </head>
 
@@ -34,9 +35,6 @@
             <a class="nav-link" href="#">О нас</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Профиль</a>
-          </li>
-          <li class="nav-item">
             <a class="nav-link" href="#">Обращение</a>
           </li>
           {% url 'courses:list' as courses_list %}
@@ -51,6 +49,23 @@
               Блог сайта
             </a>
           </li>
+          {% url 'users:login' as users_login %}
+          {% url 'users:register' as users_register %}
+          {% if user.is_authenticated %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">{{user}}</a>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="{% url 'users:logout' %}">Выйти</a>
+            </div>
+          </li>
+          {% else %}
+          <li class="nav-item {% if users_login in request.get_full_path %}active{% endif %}">
+            <a class="nav-link" href="{% url 'users:login' %}">Войти</a>
+          </li>
+          <li class="nav-item {% if users_register in request.get_full_path %}active{% endif %}">
+            <a class="nav-link" href="{% url 'users:register' %}">Регистрация</a>
+          </li>
+          {% endif %}
         </ul>
       </div>
     </div>
@@ -61,18 +76,9 @@
 
     <!-- Page Heading/Breadcrumbs -->
     {% block page_heading %}
-    <h1 class="mt-4 mb-3">Page heading
-      <small>Subheading</small>
-    </h1>
     {% endblock %}
 
     {% block page_breadcrumb %}
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item">
-        <a href="#">Home</a>
-      </li>
-      <li class="breadcrumb-item active">Active page</li>
-    </ol>
     {% endblock %}
 
     {% block page_content %}
@@ -85,12 +91,14 @@
   <!-- /.container -->
 
   <!-- Footer -->
+  {% block page_footer %}
   <footer class="py-5 bg-dark">
     <div class="container">
       <p class="m-0 text-center text-white">Copyright &copy; Your Website 2019</p>
     </div>
     <!-- /.container -->
   </footer>
+  {% endblock %}
 
   <!-- Bootstrap core JavaScript -->
   <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>

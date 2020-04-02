@@ -7,10 +7,11 @@
     {% block page_heading %}
     <h1 class="mt-4 mb-3">
       Доступные курсы
+      {% if user.is_superuser %}
       <br>
       <small><a href="{% url 'courses:create_course' %}">Добавить курс</a></small>
+      {% endif %}
     </h1>
-    
     {% endblock %}
 
     {% block page_breadcrumb %}
@@ -43,11 +44,8 @@
         <h4>Необходимые знания:</h3>
         <p>{{course.prereqs|truncatewords_html:35|linenumbers|linebreaksbr}}</p>
         {% endif %}
-        <a class="btn btn-primary" href="{% url 'courses:detail' pk=course.pk %}">Подробнее
-          <span class="glyphicon glyphicon-chevron-right"></span>
-        </a>
-        <a class="btn btn-success" href="{% url 'courses:lessons' pk=course.pk %}">Список лекций
-          <span class="glyphicon glyphicon-chevron-right"></span>
+        <a class="btn btn-link" href="{% url 'courses:lessons' pk=course.pk %}">
+          Список лекций
         </a>
       </div>
     </div>

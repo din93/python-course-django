@@ -4,11 +4,15 @@ from courses import forms, models
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View
 from django.views.generic.base import ContextMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
-class CreateCourseView(CreateView):
+class CreateCourseView(UserPassesTestMixin, CreateView):
     model = models.Course
     form_class = forms.CourseForm
     template_name = 'courses/course-form.html'
+
+    def test_func(self):
+        return self.request.user.is_superuser
 
     def get_success_url(self):
         new_chapter = models.CourseChapter(
@@ -33,15 +37,21 @@ class CreateCourseView(CreateView):
         new_homework.save()
         return reverse('courses:detail', kwargs={'pk': self.object.pk})
 
-class UpdateCourseView(UpdateView):
+class UpdateCourseView(UserPassesTestMixin, UpdateView):
     model = models.Course
     form_class = forms.CourseForm
     template_name = 'courses/course-form.html'
 
+    def test_func(self):
+        return self.request.user.is_superuser or self.request.user in self.get_object().teachers.all()
+
     def get_success_url(self):
         return reverse('courses:detail', kwargs={'pk': self.object.pk})
 
-class CreateChapterView(View):
+class CreateChapterView(UserPassesTestMixin, View):
+    def test_func(self):
+        return self.request.user.is_superuser
+
     def post(self, request, course_id):
         course = get_object_or_404(models.Course, id=course_id)
         form = forms.CourseChapterForm(request.POST, request.FILES)
@@ -55,14 +65,20 @@ class CreateChapterView(View):
 
         return HttpResponseRedirect(reverse('courses:lessons', kwargs = {'pk': course.pk}))
 
-class UpdateChapterView(UpdateView):
+class UpdateChapterView(UserPassesTestMixin, UpdateView):
     model = models.CourseChapter
     form_class = forms.CourseChapterForm
+
+    def test_func(self):
+        return self.request.user.is_superuser or self.request.user in self.get_object().course.teachers.all()
 
     def get_success_url(self):
         return reverse('courses:lessons', kwargs={'pk': self.object.course.pk})
 
-class CreateLessonView(CreateView):
+class CreateLessonView(UserPassesTestMixin, CreateView):
+    def test_func(self):
+        return self.request.user.is_superuser
+
     def post(self, request, chapter_id):
         course_chapter = get_object_or_404(models.CourseChapter, id=chapter_id)
         form = forms.LessonForm(request.POST, request.FILES)
@@ -85,18 +101,24 @@ class CreateLessonView(CreateView):
         
         return HttpResponseRedirect(reverse('courses:lessons', kwargs = {'pk': course_chapter.course.pk}))
 
-class UpdateLessonView(UpdateView):
+class UpdateLessonView(UserPassesTestMixin, UpdateView):
     model = models.Lesson
     form_class = forms.LessonForm
     template_name = 'courses/lesson-form.html'
 
+    def test_func(self):
+        return self.request.user.is_superuser or self.request.user in self.get_object().chapter.course.teachers.all()
+
     def get_success_url(self):
         return reverse('courses:lessons', kwargs={'pk': self.object.chapter.course.pk})+f'?lesson_id={self.object.id}'
 
-class UpdateHomeworkView(UpdateView):
+class UpdateHomeworkView(UserPassesTestMixin, UpdateView):
     model = models.Homework
     form_class = forms.HomeWorkForm
     template_name = 'courses/homework-form.html'
+
+    def test_func(self):
+        return self.request.user.is_superuser or self.request.user in self.get_object().lesson.chapter.course.teachers.all()
 
     def get_success_url(self):
         return reverse('courses:lessons', kwargs={'pk': self.object.lesson.chapter.course.pk})+f'?lesson_id={self.object.lesson.id}'
@@ -111,10 +133,13 @@ class CourseDetailView(DetailView):
     template_name = 'courses/course-detail.html'
     context_object_name = 'course'
 
-class CourseLessonsView(DetailView):
+class CourseLessonsView(UserPassesTestMixin, DetailView):
     model = models.Course
     template_name = 'courses/course-lessons.html'
     context_object_name = 'course'
+
+    def test_func(self):
+        return self.request.user.is_superuser or self.request.user in self.get_object().teachers.all() or self.request.user in self.get_object().students.all()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -135,7 +160,7 @@ class HomeWorkRespondView(View):
         if form.is_valid():
             new_homework_respond = models.HomeWorkRespond(
                 homework = lesson_homework,
-                student = None,
+                student = request.user,
                 text = form.cleaned_data['text'],
                 file_attachment = form.cleaned_data['file_attachment']
             )
