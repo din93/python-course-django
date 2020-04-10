@@ -17,11 +17,36 @@ class Course(TimeStamp):
     students = models.ManyToManyField(CoursesUser, related_name='students', blank=True)
     is_shown = models.BooleanField(default=True)
 
-    def get_chapters(self):
-        return CourseChapter.objects.filter(course=self)
-
     def __str__(self):
         return self.title
+
+    def get_chapters(self):
+        return CourseChapter.objects.filter(course=self).all()
+
+    def fill_course_initial(self):
+        new_chapter = CourseChapter.objects.create(
+            title = 'Название блока',
+            number = 1,
+            course = self
+        )
+        new_lesson = Lesson.objects.create(
+            title = 'Название занятия',
+            chapter = new_chapter,
+            number = 1,
+            estimated_time_min = 10,
+            description = 'Текст занятия'
+        )
+        new_homework = Homework.objects.create(
+            lesson = new_lesson,
+            text = 'Текст домашнего задания',
+            points = 10
+        )
+
+    def get_thumbnail_url(self):
+        return self.thumbnail if 'http' in self.thumbnail.url else self.thumbnail.url
+
+    def has_thumbnail(self):
+        return bool(self.thumbnail)
 
 class CourseChapter(models.Model):
     title = models.CharField(max_length=50, unique=False)
@@ -29,11 +54,11 @@ class CourseChapter(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     finishers = models.ManyToManyField(CoursesUser)
 
-    def get_lessons(self):
-        return Lesson.objects.filter(chapter=self)
-
     def __str__(self):
         return self.title
+
+    def get_lessons(self):
+        return Lesson.objects.filter(chapter=self)
 
 class Lesson(TimeStamp):
     title = models.CharField(max_length=50, unique=False)
@@ -44,25 +69,25 @@ class Lesson(TimeStamp):
     description = models.TextField(blank=True)
     is_shown = models.BooleanField(default=True)
 
+    def __str__(self):
+        return self.title
+
     def get_questions(self):
         return QuizQuestion.objects.filter(lesson=self)
 
     def get_homework(self):
         return Homework.objects.filter(lesson=self).first()
 
-    def __str__(self):
-        return self.title
-
 class QuizQuestion(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
     text = models.TextField()
     points = models.PositiveSmallIntegerField()
 
-    def get_options(self):
-        return QuizOption.objects.filter(question=self)
-
     def __str__(self):
         return self.text
+
+    def get_options(self):
+        return QuizOption.objects.filter(question=self)
 
 class QuizOption(models.Model):
     question = models.ForeignKey(QuizQuestion, on_delete=models.CASCADE)
@@ -77,15 +102,15 @@ class Homework(TimeStamp):
     text = models.TextField()
     points = models.PositiveSmallIntegerField()
 
+    def __str__(self):
+        return f'{self.text} from lesson: {self.lesson}'
+
     def get_responds(self):
         return HomeWorkRespond.objects.filter(homework=self).all()
 
     def get_responded_students(self):
         hw_responds = self.get_responds()
         return [hw_respond.student for hw_respond in hw_responds]
-    
-    def __str__(self):
-        return f'{self.text} from lesson: {self.lesson}'
 
 class HomeWorkRespond(TimeStamp):
     homework = models.ForeignKey(Homework, on_delete=models.CASCADE)

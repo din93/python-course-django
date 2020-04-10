@@ -28,12 +28,8 @@
     <div class="row">
       <div class="col-md-7">
         <a href="{% url 'courses:detail' pk=course.pk %}">
-          {% if course.thumbnail %}
-            {% if 'http' in course.thumbnail.url %}
-            <img class="img-fluid rounded mb-3 mb-md-0" src="{{course.thumbnail}}" alt="course_thumbnail">
-            {% else %}
-            <img class="img-fluid rounded mb-3 mb-md-0" src="{{course.thumbnail.url}}" alt="course_thumbnail">
-            {% endif %}
+          {% if course.has_thumbnail %}
+            <img class="img-fluid rounded mb-3 mb-md-0" src="{{course.get_thumbnail_url}}" alt="course_thumbnail">
           {% endif %}
         </a>
       </div>

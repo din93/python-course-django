@@ -51,12 +51,8 @@
       <div class="col-lg-8">
 
         <!-- Preview Image -->
-        {% if article.thumbnail %}
-          {% if 'https' in article.thumbnail.url %}
-          <img class="img-fluid rounded" src="{{article.thumbnail}}" alt="article-thumbnail">
-          {% else %}
-          <img class="img-fluid rounded" src="{{article.thumbnail.url}}" alt="article-thumbnail">
-          {% endif %}
+        {% if article.has_thumbnail %}
+          <img class="img-fluid rounded" src="{{article.get_thumbnail_url}}" alt="article-thumbnail">
         {% endif %}
 
         <hr>
@@ -101,7 +97,7 @@
           </div>
         </div>
 
-        {% for commentary in commentaries %}
+        {% for commentary in article.get_commentaries %}
         <div class="media mb-4">
           <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
           <div class="media-body">

@@ -8,13 +8,6 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.views.generic.base import ContextMixin
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
-class ArticleCommentariesContext(ContextMixin):
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-        context['commentaries'] = Commentary.objects.filter(article=context['article'])
-        context['commentary_form'] = CommentaryForm()
-        return context
-
 class BlogHomeView(ListView):
     model = Article
     template_name = 'blog/blog-home.html'
@@ -54,10 +47,15 @@ class DeleteArticleView(UserPassesTestMixin, DeleteView):
     def test_func(self):
         return self.request.user == self.get_object().author or self.request.user.is_superuser
 
-class DetailArticleView(DetailView, ArticleCommentariesContext):
+class DetailArticleView(DetailView):
     model = Article
     template_name = 'blog/article-detail.html'
     context_object_name = 'article'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['commentary_form'] = CommentaryForm()
+        return context
 
 class CreateCommentView(LoginRequiredMixin, View):
     def post(self, request, article_id):

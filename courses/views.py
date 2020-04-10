@@ -15,26 +15,7 @@ class CreateCourseView(UserPassesTestMixin, CreateView):
         return self.request.user.is_superuser
 
     def get_success_url(self):
-        new_chapter = models.CourseChapter(
-            title = 'Название блока',
-            number = 1,
-            course = self.object
-        )
-        new_chapter.save()
-        new_lesson = models.Lesson(
-            title = 'Название занятия',
-            chapter = new_chapter,
-            number = 1,
-            estimated_time_min = 10,
-            description = 'Текст занятия'
-        )
-        new_lesson.save()
-        new_homework = models.Homework(
-            lesson = new_lesson,
-            text = 'Текст домашнего задания',
-            points = 10
-        )
-        new_homework.save()
+        self.object.fill_course_initial()
         return reverse('courses:detail', kwargs={'pk': self.object.pk})
 
 class UpdateCourseView(UserPassesTestMixin, UpdateView):

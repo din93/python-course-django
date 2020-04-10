@@ -34,12 +34,8 @@
 <div class="row mb-4">
 
   <div class="col-md-12">
-    {% if course.thumbnail %}
-      {% if 'http' in course.thumbnail.url %}
-        <img class="img-fluid" src="{{course.thumbnail}}" alt="course_thumbnail">
-      {% else %}
-        <img class="img-fluid" src="{{course.thumbnail.url}}" alt="course_thumbnail">
-      {% endif %}
+    {% if course.has_thumbnail %}
+      <img class="img-fluid" src="{{course.get_thumbnail_url}}" alt="course_thumbnail">
     {% endif %}
     <p>{{course.overview|linebreaks}}</p>
     {% if course.prereqs %}
