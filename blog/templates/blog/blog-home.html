@@ -27,7 +27,7 @@
       <div class="col-md-8">
 
         <!-- Blog Posts -->
-        {% for article in articles|dictsortreversed:"created" %}
+        {% for article in articles %}
         <div class="card mb-4">
           <a href="{% url 'blog:detail' pk=article.pk %}">
             {% if article.has_thumbnail %}
@@ -47,14 +47,36 @@
         {% endfor %}
 
         <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
         <ul class="pagination justify-content-center mb-4">
           <li class="page-item">
-            <a class="page-link" href="#">&larr; Older</a>
+            <a class="page-link" href="?page=1" aria-label="Previous">
+              <span aria-hidden="true">&laquo;</span>
+              <span class="sr-only">First</span>
+            </a>
           </li>
-          <li class="page-item disabled">
-            <a class="page-link" href="#">Newer &rarr;</a>
+          {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a>
+          </li>
+          {% endif %}
+          <li class="page-item active">
+            <span class="page-link">{{ page_obj.number }}</span>
+          </li>
+          {% if page_obj.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a>
+          </li>
+          {% endif %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.paginator.num_pages  }}" aria-label="Next">
+              <span aria-hidden="true">&raquo;</span>
+              <span class="sr-only">Last</span>
+            </a>
           </li>
         </ul>
+        {% endif %}
+        
 
       </div>
 

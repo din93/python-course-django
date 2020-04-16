@@ -28,11 +28,11 @@ class Article(TimeStamp, Hideable):
     title = models.CharField('Название статьи', max_length=50, unique=False)
     thumbnail = models.ImageField('Картинка статьи', upload_to='thumbnails/blog/', blank=True, null=True)
     text = models.TextField('Текст статьи', blank=True)
-    categories = models.ManyToManyField(Category)
+    categories = models.ManyToManyField(Category, related_name='category_articles')
     author = models.ForeignKey(CoursesUser, on_delete=models.CASCADE)
 
-    def get_commentaries(self):
-        return Commentary.objects.filter(article=self).all()
+    def get_shown_commentaries(self):
+        return Commentary.objects.filter(article=self, is_shown=True).all()
 
     def get_thumbnail_url(self):
         return self.thumbnail if 'http' in self.thumbnail.url else self.thumbnail.url
@@ -42,11 +42,15 @@ class Article(TimeStamp, Hideable):
 
     def __str__(self):
         return self.title
+    
+    def display_categories(self):
+        categories = self.categories.all()
+        return ', '.join([category.name for category in categories])
 
 class Commentary(TimeStamp, Hideable):
-    author = models.ForeignKey(CoursesUser, on_delete=models.CASCADE)
+    author = models.ForeignKey(CoursesUser, on_delete=models.CASCADE, related_name='user_commentaries')
     text = models.CharField('Текст комментария', max_length=200)
-    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='article_commentaries')
 
     def __str__(self):
         return f'From "{self.author.username}": {self.text}'

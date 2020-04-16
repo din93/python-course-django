@@ -66,7 +66,7 @@
         <hr>
 
         <!-- Post Content -->
-        {{article.text|linebreaks}}
+        {{article.text|safe|linebreaks}}
 
         <hr>
 
@@ -97,7 +97,7 @@
           </div>
         </div>
 
-        {% for commentary in article.get_commentaries %}
+        {% for commentary in article.get_shown_commentaries %}
         <div class="media mb-4">
           <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
           <div class="media-body">

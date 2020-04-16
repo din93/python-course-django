@@ -9,39 +9,34 @@ class CourseTestCase(TestCase):
         self.course = mixer.blend(Course, title='Test Course')
 
     def test_get_chapters(self):
-        self.assertFalse(self.course.get_chapters())
-        chapter1 = mixer.blend(CourseChapter, title='Test Chapter 1', course=self.course)
-        self.assertListEqual(
-            list(self.course.get_chapters()),
-            [chapter1]
-        )
+        self.assertTrue(len(self.course.course_chapters.all())==1)
         chapter2 = mixer.blend(CourseChapter, title='Test Chapter 2', course=self.course)
         self.assertListEqual(
-            list(self.course.get_chapters()),
-            [chapter1, chapter2]
+            list(self.course.course_chapters.all()),
+            [self.course.course_chapters.first(), chapter2]
         )
-        self.assertEqual(self.course.get_chapters()[0].title, 'Test Chapter 1')
+        self.assertEqual(self.course.course_chapters.all()[1].title, 'Test Chapter 2')
 
     def test_fill_initial(self):
-        self.assertFalse(self.course.get_chapters())
-        self.course.fill_course_initial()
-        self.assertTrue(len(self.course.get_chapters())==1)
+        course = mixer.blend(Course, title='Test Course')
+        self.assertTrue(len(course.course_chapters.all())==1)
+        self.assertTrue(len(course.course_chapters.first().chapter_lessons.all())==1)
         
 class CourseChapterTestCase(TestCase):
 
-    def test_get_questions(self):
+    def test_get_lessons(self):
         chapter = mixer.blend(CourseChapter)
         lesson1 = mixer.blend(Lesson, title='Test Lesson 1', chapter=chapter)
         self.assertListEqual(
-            list(chapter.get_lessons()),
+            list(chapter.chapter_lessons.all()),
             [lesson1]
         )
         lesson2 = mixer.blend(Lesson, title='Test Lesson 2', chapter=chapter)
         self.assertListEqual(
-            list(chapter.get_lessons()),
+            list(chapter.chapter_lessons.all()),
             [lesson1, lesson2]
         )
-        self.assertEqual(chapter.get_lessons()[1].title, 'Test Lesson 2')
+        self.assertEqual(chapter.chapter_lessons.all()[1].title, 'Test Lesson 2')
 
 class LessonTestCase(TestCase):
 
@@ -52,15 +47,15 @@ class LessonTestCase(TestCase):
         
         quiz_question1 = mixer.blend(QuizQuestion, lesson=self.lesson)
         self.assertListEqual(
-            list(self.lesson.get_questions()),
+            list(self.lesson.lesson_quiz_questions.all()),
             [quiz_question1]
         )
         quiz_question2 = mixer.blend(QuizQuestion, text='Test Question 2', lesson=self.lesson)
         self.assertListEqual(
-            list(self.lesson.get_questions()),
+            list(self.lesson.lesson_quiz_questions.all()),
             [quiz_question1, quiz_question2]
         )
-        self.assertEqual(self.lesson.get_questions()[1].text, 'Test Question 2')
+        self.assertEqual(self.lesson.lesson_quiz_questions.all()[1].text, 'Test Question 2')
 
     def test_get_homework(self):
         homework = mixer.blend(Homework, text='Test Homework', lesson=self.lesson)
@@ -74,15 +69,15 @@ class QuizQuestionsTestCase(TestCase):
         quiz_question = mixer.blend(QuizQuestion)
         quiz_option1 = mixer.blend(QuizOption, text='Test Option 1', question=quiz_question)
         self.assertListEqual(
-            list(quiz_question.get_options()),
+            list(quiz_question.question_options.all()),
             [quiz_option1]
         )
         quiz_option2 = mixer.blend(QuizOption, question=quiz_question)
         self.assertListEqual(
-            list(quiz_question.get_options()),
+            list(quiz_question.question_options.all()),
             [quiz_option1, quiz_option2]
         )
-        self.assertEqual(quiz_question.get_options()[0].text, 'Test Option 1')
+        self.assertEqual(quiz_question.question_options.first().text, 'Test Option 1')
 
 class HomeWorkTestCase(TestCase):
 
@@ -92,12 +87,12 @@ class HomeWorkTestCase(TestCase):
     def test_get_responds(self):
         homework_respond1 = mixer.blend(HomeWorkRespond, homework=self.homework)
         self.assertListEqual(
-            list(self.homework.get_responds()),
+            list(self.homework.homework_responds.all()),
             [homework_respond1]
         )
         homework_respond2 = mixer.blend(HomeWorkRespond, homework=self.homework)
         self.assertListEqual(
-            list(self.homework.get_responds()),
+            list(self.homework.homework_responds.all()),
             [homework_respond1, homework_respond2]
         )
 

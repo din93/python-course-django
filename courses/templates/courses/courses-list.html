@@ -24,7 +24,7 @@
     {% endblock %}
 
     {% block page_content %}
-    {% for course in courses|dictsortreversed:"created" %}
+    {% for course in courses %}
     <div class="row">
       <div class="col-md-7">
         <a href="{% url 'courses:detail' pk=course.pk %}">
@@ -51,29 +51,21 @@
     {% endfor %}
 
     <!-- Pagination -->
-    <ul class="pagination justify-content-center">
-      <li class="page-item">
-        <a class="page-link" href="#" aria-label="Previous">
-          <span aria-hidden="true">&laquo;</span>
-          <span class="sr-only">Previous</span>
-        </a>
-      </li>
-      <li class="page-item">
-        <a class="page-link" href="#">1</a>
-      </li>
-      <li class="page-item">
-        <a class="page-link" href="#">2</a>
-      </li>
-      <li class="page-item">
-        <a class="page-link" href="#">3</a>
-      </li>
-      <li class="page-item">
-        <a class="page-link" href="#" aria-label="Next">
-          <span aria-hidden="true">&raquo;</span>
-          <span class="sr-only">Next</span>
-        </a>
-      </li>
+    {% if page_obj.has_other_pages %}
+    <ul class="pagination justify-content-center mb-4">
+      {% for page_num in page_obj.paginator.page_range %}
+        {% if page_num != page_obj.number %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+        </li>
+        {% else %}
+        <li class="page-item active">
+          <span class="page-link">{{ page_num }}</span>
+        </li>
+        {% endif %}
+      {% endfor %}
     </ul>
+    {% endif %}
 
   </div>
   <!-- /.container -->

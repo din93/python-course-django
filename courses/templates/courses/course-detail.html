@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load str_extensions %}
 
 {% block page_title %}
   Доступные курсы
@@ -6,7 +7,7 @@
 
 {% block page_heading %}
 <h1 class="mt-4 mb-3">
-  Курс: {{course.title}}
+  Курс: {{course.title|capitalize}}
   {% if user.is_superuser or user in course.teachers.all %}
   <br>
   <small><a href="{% url 'courses:update_course' pk=course.pk %}">Внести правки</a></small>
@@ -23,7 +24,7 @@
     <a href="{% url 'courses:list' %}">Доступные курсы</a>
   </li>
   <li class="breadcrumb-item active">
-    Курс: {{course.title}}
+    Курс: {{course.title|capitalize}}
     <span><a href="{% url 'courses:lessons' pk=course.pk %}">Перейти к лекциям</a></span>
   </li>
 </ol>
@@ -37,7 +38,7 @@
     {% if course.has_thumbnail %}
       <img class="img-fluid" src="{{course.get_thumbnail_url}}" alt="course_thumbnail">
     {% endif %}
-    <p>{{course.overview|linebreaks}}</p>
+    <p>{{course.overview|safe|linebreaks}}</p>
     {% if course.prereqs %}
       <h4 class="my-3">Необходимые знания:</h4>
       {{course.prereqs|linenumbers|linebreaksbr}}

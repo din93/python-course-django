@@ -15,7 +15,6 @@ class CreateCourseView(UserPassesTestMixin, CreateView):
         return self.request.user.is_superuser
 
     def get_success_url(self):
-        self.object.fill_course_initial()
         return reverse('courses:detail', kwargs={'pk': self.object.pk})
 
 class UpdateCourseView(UserPassesTestMixin, UpdateView):
@@ -108,6 +107,9 @@ class CoursesListView(ListView):
     model = models.Course
     template_name = 'courses/courses-list.html'
     context_object_name = 'courses'
+    queryset = models.Course.shown_objects.all()
+    paginate_by = 2
+    ordering = ['-created']
 
 class CourseDetailView(DetailView):
     model = models.Course
@@ -124,7 +126,7 @@ class CourseLessonsView(UserPassesTestMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        first_lesson = context['course'].get_chapters()[0].get_lessons()[0]
+        first_lesson = context['course'].course_chapters.first().chapter_lessons.first()
 
         context['active_lesson'] = models.Lesson.objects.filter(id=self.request.GET.get('lesson_id', first_lesson.id)).first()
         context['hw_respond_form'] = forms.HomeWorkRespondForm()

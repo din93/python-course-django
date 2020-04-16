@@ -43,3 +43,15 @@ class BlogViewsTestCase(TestCase):
         response = self.client.post(f'/blog/create_comment/{self.article.id}/', {'text': 'test'})
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, f'/blog/detail/{self.article.id}/')
+
+    def test_pagination(self):
+        [mixer.blend(Article) for _ in range(10)]
+
+        response = self.client.get('/blog/?page=1')
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get('/blog/?page=2')
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get('/blog/?page=200')
+        self.assertEqual(response.status_code, 404)
