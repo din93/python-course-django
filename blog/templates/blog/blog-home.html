@@ -30,12 +30,8 @@
         {% for article in articles|dictsortreversed:"created" %}
         <div class="card mb-4">
           <a href="{% url 'blog:detail' pk=article.pk %}">
-            {% if article.thumbnail %}
-              {% if 'http' in article.thumbnail.url %}
-              <img class="card-img-top" src="{{article.thumbnail}}" alt="Card image cap">
-              {% else %}
-              <img class="card-img-top" src="{{article.thumbnail.url}}" alt="Card image cap">
-              {% endif %}
+            {% if article.has_thumbnail %}
+              <img class="card-img-top" src="{{article.get_thumbnail_url}}" alt="article-thumbnail">
             {% endif %}
           </a>
           <div class="card-body">
