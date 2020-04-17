@@ -16,10 +16,18 @@ class ArticleTestCase(TestCase):
     def test_getting_commentaries(self):
         article_commentaries = [mixer.blend(Commentary, article=self.article) for _ in range(4)]
         self.assertListEqual(
-            list(self.article.get_commentaries()),
+            list(self.article.article_commentaries.all()),
             list(Commentary.objects.filter(article=self.article).all())
         )
-        self.assertTrue(article_commentaries[0] in self.article.get_commentaries())
+        self.assertTrue(article_commentaries[0] in self.article.article_commentaries.all())
+
+        article_commentaries[0].is_shown = False
+        article_commentaries[0].save()
+        self.assertListEqual(
+            list(self.article.get_shown_commentaries()),
+            list(Commentary.objects.filter(article=self.article, is_shown=True).all())
+        )
+        self.assertTrue(article_commentaries[0] not in self.article.get_shown_commentaries())
 
 class CategoryTestCase(TestCase):
 
@@ -44,8 +52,8 @@ class CommentaryTestCase(TestCase):
 
     def test_commentary_in_article(self):
         commentary = mixer.blend(Commentary, article=self.article)
-        self.assertTrue(commentary in self.article.get_commentaries())
+        self.assertTrue(commentary in self.article.article_commentaries.all())
 
     def test_commentary_not_in_article(self):
         commentary = mixer.blend(Commentary)
-        self.assertFalse(commentary in self.article.get_commentaries())
+        self.assertFalse(commentary in self.article.article_commentaries.all())

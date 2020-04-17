@@ -12,6 +12,9 @@ class BlogHomeView(ListView):
     model = Article
     template_name = 'blog/blog-home.html'
     context_object_name = 'articles'
+    queryset = Article.objects.filter(is_shown=True)
+    paginate_by = 3
+    ordering = ['-created']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

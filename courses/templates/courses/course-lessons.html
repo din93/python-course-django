@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load str_extensions %}
 
 {% block page_title %}
   Доступные курсы
@@ -6,7 +7,7 @@
 
     {% block page_heading %}
     <h1 class="mt-4 mb-3">
-      Курс: {{course.title}}
+      Курс: {{course.title|capitalize}}
     </h1>
     {% endblock %}
 
@@ -19,7 +20,7 @@
         <a href="{% url 'courses:list' %}">Доступные курсы</a>
       </li>
       <li class="breadcrumb-item active">
-        Лекции курса "{{course.title}}":
+        Лекции курса "{{course.title|capitalize}}":
         (<span>
           <a href="{% url 'courses:detail' pk=course.pk %}">О курсе</a>
         </span>)
@@ -32,7 +33,7 @@
     <div class="row">
       <!-- Sidebar Column -->
       <div class="col-lg-3 mb-4">
-          {% for chapter in course.get_chapters %}
+          {% for chapter in course.course_chapters.all %}
 
           <div class="modal" tabindex="-1" id="updateChapter{{chapter.pk}}" role="dialog">
             <div class="modal-dialog" role="document">
@@ -71,7 +72,7 @@
               {% endif %}
             </ul>
 
-            {% for lesson in chapter.get_lessons %}
+            {% for lesson in chapter.chapter_lessons.all %}
               <a
                 href="{% url 'courses:lessons' pk=course.pk %}?lesson_id={{lesson.id}}"
                 class="btn rounded-0 btn-{% if active_lesson == lesson %}info{% else %}outline-default{% endif %}"
@@ -155,22 +156,22 @@
       <div class="col-lg-9 mb-4">
 
         <h2>
-          {{active_lesson.title}}
+          {{active_lesson.title|capitalize}}
           {% if user.is_superuser or user in course.teachers.all %}
           <br>
           <small><a href="{% url 'courses:update_lesson' pk=active_lesson.pk %}">Внести правки</a></small>
           <small>/ <a href="#">Добавить вопрос (WIP)</a></small>
           {% endif %}
         </h2>
-        <p>{{active_lesson.description}}</p>
+        <p>{{active_lesson.description|safe}}</p>
         <p>Ориентировочное время освоения: {{active_lesson.estimated_time_min}} минут</p>
-        {% if active_lesson.get_questions %}
+        {% if active_lesson.lesson_quiz_questions.all %}
           <h4>Вопросы:</h4>
           <ul>
-            {% for quiz_question in active_lesson.get_questions %}
+            {% for quiz_question in active_lesson.lesson_quiz_questions.all %}
             <li>{{quiz_question.text}} ({{quiz_question.points}} очков)</li>
             <ul>
-              {% for quiz_option in quiz_question.get_options %}
+              {% for quiz_option in quiz_question.question_options.all %}
               <li>{{quiz_option.text}} ({{ quiz_option.is_right }})</li>
               {% endfor %}
             </ul>
@@ -206,7 +207,7 @@
           </div>
           {% endif %}
           
-          {% for hw_respond in active_lesson.get_homework.get_responds %}
+          {% for hw_respond in active_lesson.get_homework.homework_responds.all %}
           <div class="card my-4">
             <h5 class="card-header">Ответ ученика {{hw_respond.student}}</h5>
             <div class="card-body">

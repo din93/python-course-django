@@ -35,3 +35,15 @@ class CourseTestCase(TestCase):
         self.course.teachers.add(user)
         response = self.client.get(f'/courses/lessons/{self.course.pk}/')
         self.assertEqual(response.status_code, 200)
+
+    def test_pagination(self):
+        [mixer.blend(Course) for _ in range(10)]
+
+        response = self.client.get('/courses/list/?page=1')
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get('/courses/list/?page=2')
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get('/courses/list/?page=200')
+        self.assertEqual(response.status_code, 404)
