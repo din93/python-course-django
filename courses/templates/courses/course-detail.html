@@ -43,13 +43,15 @@
       <h4 class="my-3">Необходимые знания:</h4>
       {{course.prereqs|linenumbers|linebreaksbr}}
     {% endif %}
-    {% if course.teachers.all %}
-      <h4 class="my-3">Преподаватели курса:</h4>
-      {{ course.teachers.all|join:", " }}
-    {% endif %}
-    {% if course.students.all %}
-      <h5 class="my-3">Количество участников курса на данный момент: {{ course.students.count }}</h5>
-    {% endif %}
+    {% with course_teachers=course.teachers.all course_students=course.students.all %}
+      {% if course_teachers %}
+        <h4 class="my-3">Преподаватели курса:</h4>
+        {{ course_teachers|join:", " }}
+      {% endif %}
+      {% if course_students %}
+        <h5 class="my-3">Количество участников курса на данный момент: {{ course_students.count }}</h5>
+      {% endif %}
+    {% endwith %}
   </div>
 </div>
 <!-- /.row -->

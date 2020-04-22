@@ -1,5 +1,6 @@
 from django.db import models
 from users.models import CoursesUser
+from django.utils.functional import cached_property
 
 class TimeStamp(models.Model):
     created = models.DateTimeField(auto_now_add=True)
@@ -30,6 +31,7 @@ class Course(TimeStamp, HideableMixin):
     def __str__(self):
         return self.title
 
+    @cached_property
     def display_teachers(self):
         teachers = self.teachers.all()
         return ', '.join([teacher.username for teacher in teachers])
@@ -55,9 +57,11 @@ class Course(TimeStamp, HideableMixin):
                 points = 10
             )
 
+    @cached_property
     def get_thumbnail_url(self):
         return self.thumbnail if 'http' in self.thumbnail.url else self.thumbnail.url
 
+    @cached_property
     def has_thumbnail(self):
         return bool(self.thumbnail)
 
@@ -81,6 +85,7 @@ class Lesson(TimeStamp, HideableMixin):
     def __str__(self):
         return self.title
 
+    @cached_property
     def get_homework(self):
         return Homework.objects.filter(lesson=self).first()
 
@@ -92,6 +97,7 @@ class QuizQuestion(models.Model):
     def __str__(self):
         return self.text
 
+    @cached_property
     def get_options(self):
         return QuizOption.objects.filter(question=self)
 

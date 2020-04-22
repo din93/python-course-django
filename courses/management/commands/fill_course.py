@@ -24,7 +24,7 @@ class Command(BaseCommand):
         for chapter_number in range(random.randrange(3, 6)):
             new_chapter = models.CourseChapter(
                 title = requests.get('http://asdfast.beobit.net/api/?type=word').json()['text'].replace('.', ''),
-                number = chapter_number+1,
+                number = chapter_number+2,
                 course = new_course
             )
             new_chapter.save()
