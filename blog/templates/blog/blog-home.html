@@ -101,23 +101,12 @@
           <h5 class="card-header">Categories</h5>
           <div class="card-body">
             <div class="row">
-              <div class="col-lg-6">
-                <ul class="list-unstyled mb-0">
-                {% for category in categories|slice:":10" %}
-                  <li>
-                    <a href="#">{{category.name}}</a>
-                  </li>
-                {% endfor %}
-                </ul>
-              </div>
-              <div class="col-lg-6">
-                <ul class="list-unstyled mb-0">
-                {% for category in categories|slice:"10:" %}
-                  <li>
-                    <a href="#">{{category.name}}</a>
-                  </li>
-                {% endfor %}
-                </ul>
+              <div class="col-lg-12">
+                <div class="d-flex flex-wrap justify-content-center">
+                  {% for category in categories %}
+                    <a href="#" class='mx-2'>{{category.name}}</a>
+                  {% endfor %}
+                </div>
               </div>
             </div>
           </div>

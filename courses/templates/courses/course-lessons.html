@@ -165,60 +165,64 @@
         </h2>
         <p>{{active_lesson.description|safe}}</p>
         <p>Ориентировочное время освоения: {{active_lesson.estimated_time_min}} минут</p>
-        {% if active_lesson.lesson_quiz_questions.all %}
-          <h4>Вопросы:</h4>
-          <ul>
-            {% for quiz_question in active_lesson.lesson_quiz_questions.all %}
-            <li>{{quiz_question.text}} ({{quiz_question.points}} очков)</li>
+        {% with lesson_quiz_questions=active_lesson.lesson_quiz_questions.all %}
+          {% if lesson_quiz_questions %}
+            <h4>Вопросы:</h4>
             <ul>
-              {% for quiz_option in quiz_question.question_options.all %}
-              <li>{{quiz_option.text}} ({{ quiz_option.is_right }})</li>
+              {% for quiz_question in lesson_quiz_questions %}
+              <li>{{quiz_question.text}} ({{quiz_question.points}} очков)</li>
+              <ul>
+                {% for quiz_option in quiz_question.question_options.all %}
+                <li>{{quiz_option.text}} ({{ quiz_option.is_right }})</li>
+                {% endfor %}
+              </ul>
               {% endfor %}
             </ul>
-            {% endfor %}
-          </ul>
-        {% endif %}
-
-        {% if active_lesson.get_homework %}
-          <h4>
-            Домашнее задание ({{active_lesson.get_homework.points}} очков):
-            {% if user.is_superuser or user in course.teachers.all %}
-            <small>
-              <a href="{% url 'courses:update_homework' pk=active_lesson.get_homework.pk %}">Внести правки</a>
-            </small>
-            {% endif %}
-          </h4>
-          <p>{{active_lesson.get_homework.text}}</p>
-          
-          {% if user not in active_lesson.get_homework.get_responded_students %}
-          <div class="card my-4">
-            <h5 class="card-header">Ваш ответ:</h5>
-            <div class="card-body">
-              <form enctype="multipart/form-data" action="{% url 'courses:hw_respond' course_id=course.id lesson_id=active_lesson.id %}" method="post">
-                <div class="form-group">
-                  {% csrf_token %}
-                  {{hw_respond_form.text}}
-                  <br>
-                  {{hw_respond_form.file_attachment}}
-                </div>
-                <button type="submit" class="btn btn-primary">Отправить ответ</button>
-              </form>
-            </div>
-          </div>
           {% endif %}
-          
-          {% for hw_respond in active_lesson.get_homework.homework_responds.all %}
-          <div class="card my-4">
-            <h5 class="card-header">Ответ ученика {{hw_respond.student}}</h5>
-            <div class="card-body">
-              <p>{{hw_respond.text}}</p>
-              <p>Отправлено {{hw_respond.created}}</p>
-              <span class="badge">{% if hw_respond.is_accepted %}Принят{% else %}Ожидает проверки{% endif %}</span>
+        {% endwith %}
+
+        {% with lesson_homework=active_lesson.get_homework %}
+          {% if lesson_homework %}
+            <h4>
+              Домашнее задание ({{lesson_homework.points}} очков):
+              {% if user.is_superuser or user in course.teachers.all %}
+              <small>
+                <a href="{% url 'courses:update_homework' pk=lesson_homework.pk %}">Внести правки</a>
+              </small>
+              {% endif %}
+            </h4>
+            <p>{{lesson_homework.text}}</p>
+            
+            {% if user not in lesson_homework.get_responded_students %}
+            <div class="card my-4">
+              <h5 class="card-header">Ваш ответ:</h5>
+              <div class="card-body">
+                <form enctype="multipart/form-data" action="{% url 'courses:hw_respond' course_id=course.id lesson_id=active_lesson.id %}" method="post">
+                  <div class="form-group">
+                    {% csrf_token %}
+                    {{hw_respond_form.text}}
+                    <br>
+                    {{hw_respond_form.file_attachment}}
+                  </div>
+                  <button type="submit" class="btn btn-primary">Отправить ответ</button>
+                </form>
+              </div>
             </div>
-          </div>
-          {% endfor %}
-          
-        {% endif %}
+            {% endif %}
+            
+            {% for hw_respond in lesson_homework.homework_responds.all %}
+            <div class="card my-4">
+              <h5 class="card-header">Ответ ученика {{hw_respond.student}}</h5>
+              <div class="card-body">
+                <p>{{hw_respond.text}}</p>
+                <p>Отправлено {{hw_respond.created}}</p>
+                <span class="badge">{% if hw_respond.is_accepted %}Принят{% else %}Ожидает проверки{% endif %}</span>
+              </div>
+            </div>
+            {% endfor %}
+            
+          {% endif %}
+        {% endwith %}
         
       </div>
     </div>

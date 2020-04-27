@@ -1,5 +1,6 @@
 from django.db import models
 from users.models import CoursesUser
+from django.utils.functional import cached_property
 
 class TimeStamp(models.Model):
     created = models.DateTimeField(auto_now_add=True)
@@ -34,15 +35,18 @@ class Article(TimeStamp, Hideable):
     def get_shown_commentaries(self):
         return Commentary.objects.filter(article=self, is_shown=True).all()
 
+    @cached_property
     def get_thumbnail_url(self):
         return self.thumbnail if 'http' in self.thumbnail.url else self.thumbnail.url
 
+    @cached_property
     def has_thumbnail(self):
         return bool(self.thumbnail)
 
     def __str__(self):
         return self.title
     
+    @cached_property
     def display_categories(self):
         categories = self.categories.all()
         return ', '.join([category.name for category in categories])

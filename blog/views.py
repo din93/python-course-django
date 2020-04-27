@@ -12,8 +12,8 @@ class BlogHomeView(ListView):
     model = Article
     template_name = 'blog/blog-home.html'
     context_object_name = 'articles'
-    queryset = Article.objects.filter(is_shown=True)
-    paginate_by = 3
+    queryset = Article.objects.select_related('author').filter(is_shown=True)
+    paginate_by = 20
     ordering = ['-created']
 
     def get_context_data(self, **kwargs):
@@ -57,6 +57,7 @@ class DetailArticleView(DetailView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
+        context['article_commentaries'] = context['article'].get_shown_commentaries().select_related('author').all()
         context['commentary_form'] = CommentaryForm()
         return context
 

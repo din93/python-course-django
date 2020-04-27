@@ -108,7 +108,7 @@ class CoursesListView(ListView):
     template_name = 'courses/courses-list.html'
     context_object_name = 'courses'
     queryset = models.Course.shown_objects.all()
-    paginate_by = 2
+    paginate_by = 5
     ordering = ['-created']
 
 class CourseDetailView(DetailView):
@@ -126,9 +126,11 @@ class CourseLessonsView(UserPassesTestMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        first_lesson = context['course'].course_chapters.first().chapter_lessons.first()
 
-        context['active_lesson'] = models.Lesson.objects.filter(id=self.request.GET.get('lesson_id', first_lesson.id)).first()
+        if self.request.GET.get('lesson_id', False):
+            context['active_lesson'] = models.Lesson.objects.filter(id=self.request.GET['lesson_id']).first()
+        else:
+            context['active_lesson'] = context['course'].course_chapters.first().chapter_lessons.first()
         context['hw_respond_form'] = forms.HomeWorkRespondForm()
         context['chapter_form'] = forms.CourseChapterForm()
         context['lesson_form'] = forms.LessonForm()
