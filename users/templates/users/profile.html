@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block page_title %}
+  Профиль пользователя "{{object.username}}"
+{% endblock %}
+
+{% block page_heading %}
+  <h1 class="mt-4 mb-3">
+    Пользователь: {{object.username}}
+  </h1>
+{% endblock %}
+
+{% block page_breadcrumb %}{% endblock %}
+    
+{% block page_content %}
+    <div class="row mb-4">
+        <div class="col-md-12">
+        {% if object.avatar %}
+            <img class="img-fluid" src="{{object.avatar}}" alt="user_avatar">
+        {% endif %}
+        <div class="my-3">Имя пользователя: {{object.username}}</div>
+        <div class="my-3">Email: {{object.email}}</div>
+        <div class="my-3">
+            Токен:
+            {% if object.auth_token %}
+                {{object.auth_token}}
+            {% else %}
+                Не обнаружен
+            {% endif %}
+        </div>
+        <form method="POST" class="my-3" action="{% url 'users:update_token' %}">
+            {% csrf_token %}
+            <button type=submit class="btn btn-primary">
+                {% if object.auth_token %}
+                    Обновить токен
+                {% else %}
+                    Создать токен
+                {% endif %}
+            </button>
+        </form>
+        </div>
+    </div>
+{% endblock %}
