@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, Client
 from mixer.backend.django import mixer
 from courses.models import Course, CourseChapter, Lesson, Homework, HomeWorkRespond, QuizQuestion, QuizOption
 from users.models import CoursesUser
@@ -7,6 +7,7 @@ class CourseTestCase(TestCase):
 
     def setUp(self):
         self.course = mixer.blend(Course, title='Test Course')
+        self.client = Client()
 
     def test_get_chapters(self):
         self.assertTrue(len(self.course.course_chapters.all())==1)
@@ -21,7 +22,33 @@ class CourseTestCase(TestCase):
         course = mixer.blend(Course, title='Test Course')
         self.assertTrue(len(course.course_chapters.all())==1)
         self.assertTrue(len(course.course_chapters.first().chapter_lessons.all())==1)
+
+    def test_api_student_access(self):
+        user = CoursesUser.objects.create_user(username='test_user', email='tester@testmail.com', password='qwerty')
+        response = self.client.get(f'/api/v0/courses/{self.course.pk}/')
+        self.assertEqual(response.status_code, 404)
+
+        self.client.login(username='test_user', password='qwerty')
+        response = self.client.get(f'/api/v0/courses/{self.course.pk}/')
+        self.assertEqual(response.status_code, 404)
         
+        self.course.students.add(user)
+        response = self.client.get(f'/api/v0/courses/{self.course.pk}/')
+        self.assertEqual(response.status_code, 200)
+    
+    def test_api_teacher_access(self):
+        user = CoursesUser.objects.create_user(username='test_user', email='tester@testmail.com', password='qwerty')
+        response = self.client.get(f'/api/v0/courses/{self.course.pk}/')
+        self.assertEqual(response.status_code, 404)
+
+        self.client.login(username='test_user', password='qwerty')
+        response = self.client.get(f'/api/v0/courses/{self.course.pk}/')
+        self.assertEqual(response.status_code, 404)
+        
+        self.course.teachers.add(user)
+        response = self.client.get(f'/api/v0/courses/{self.course.pk}/')
+        self.assertEqual(response.status_code, 200)
+
 class CourseChapterTestCase(TestCase):
 
     def test_get_lessons(self):
@@ -60,8 +87,8 @@ class LessonTestCase(TestCase):
     def test_get_homework(self):
         homework = mixer.blend(Homework, text='Test Homework', lesson=self.lesson)
 
-        self.assertEqual(self.lesson.get_homework(), homework)
-        self.assertEqual(self.lesson.get_homework().text, 'Test Homework')
+        self.assertEqual(self.lesson.get_homework, homework)
+        self.assertEqual(self.lesson.get_homework.text, 'Test Homework')
 
 class QuizQuestionsTestCase(TestCase):
 

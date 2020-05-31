@@ -45,7 +45,7 @@ class BlogViewsTestCase(TestCase):
         self.assertRedirects(response, f'/blog/detail/{self.article.id}/')
 
     def test_pagination(self):
-        [mixer.blend(Article) for _ in range(10)]
+        [mixer.blend(Article) for _ in range(50)]
 
         response = self.client.get('/blog/?page=1')
         self.assertEqual(response.status_code, 200)

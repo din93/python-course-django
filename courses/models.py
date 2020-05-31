@@ -65,6 +65,12 @@ class Course(TimeStamp, HideableMixin):
     def has_thumbnail(self):
         return bool(self.thumbnail)
 
+    def is_user_teacher(self, user):
+        return user in self.teachers.all()
+
+    def is_user_student(self, user):
+        return user in self.students.all()
+
 class CourseChapter(models.Model):
     title = models.CharField(max_length=50, unique=False)
     number = models.PositiveSmallIntegerField()
@@ -73,6 +79,12 @@ class CourseChapter(models.Model):
 
     def __str__(self):
         return self.title
+
+    def is_user_teacher(self, user):
+        return self.course.is_user_teacher(user)
+
+    def is_user_student(self, user):
+        return self.course.is_user_student(user)
 
 class Lesson(TimeStamp, HideableMixin):
     title = models.CharField(max_length=50, unique=False)
@@ -89,6 +101,12 @@ class Lesson(TimeStamp, HideableMixin):
     def get_homework(self):
         return Homework.objects.filter(lesson=self).first()
 
+    def is_user_teacher(self, user):
+        return self.chapter.course.is_user_teacher(user)
+
+    def is_user_student(self, user):
+        return self.chapter.course.is_user_student(user)
+
 class QuizQuestion(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='lesson_quiz_questions')
     text = models.TextField()
@@ -100,6 +118,12 @@ class QuizQuestion(models.Model):
     @cached_property
     def get_options(self):
         return QuizOption.objects.filter(question=self)
+    
+    def is_user_teacher(self, user):
+        return self.lesson.chapter.course.is_user_teacher(user)
+
+    def is_user_student(self, user):
+        return self.lesson.chapter.course.is_user_student(user)
 
 class QuizOption(models.Model):
     question = models.ForeignKey(QuizQuestion, on_delete=models.CASCADE, related_name='question_options')
@@ -108,6 +132,12 @@ class QuizOption(models.Model):
 
     def __str__(self):
         return self.text
+
+    def is_user_teacher(self, user):
+        return self.question.lesson.chapter.course.is_user_teacher(user)
+
+    def is_user_student(self, user):
+        return self.question.lesson.chapter.course.is_user_student(user)
 
 class Homework(TimeStamp):
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='lesson_homeworks')
@@ -120,6 +150,12 @@ class Homework(TimeStamp):
     def get_responded_students(self):
         hw_responds = self.homework_responds.all()
         return [hw_respond.student for hw_respond in hw_responds]
+    
+    def is_user_teacher(self, user):
+        return self.lesson.chapter.course.is_user_teacher(user)
+
+    def is_user_student(self, user):
+        return self.lesson.chapter.course.is_user_student(user)
 
 class HomeWorkRespond(TimeStamp):
     homework = models.ForeignKey(Homework, on_delete=models.CASCADE, related_name='homework_responds')
@@ -131,3 +167,9 @@ class HomeWorkRespond(TimeStamp):
 
     def __str__(self):
         return f'{self.text} to homework: {self.homework}'
+    
+    def is_user_teacher(self, user):
+        return self.homework.lesson.chapter.course.is_user_teacher(user)
+
+    def is_user_student(self, user):
+        return self.homework.lesson.chapter.course.is_user_student(user)
