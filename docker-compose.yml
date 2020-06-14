@@ -1,0 +1,51 @@
+version: '3'
+volumes:
+    pgdata:
+    static_files:
+    media:
+services:
+    webapp:
+        build:
+            context: .
+            dockerfile: docker/project/Dockerfile
+        # image: django_proj:0.3
+        command: gunicorn -w 4 project.wsgi -b 0.0.0.0:8000
+        ports:
+            - 8000:8000
+        depends_on:
+            - db
+        volumes:
+            - .:/project
+            - static_files:/static_files
+            - media:/project/media
+    db:
+        image: postgres:13
+        restart: always
+        expose:
+            - 5432
+        environment:
+            POSTGRES_PASSWORD: o309sb58d
+            POSTGRES_USER: djangoapp
+            POSTGRES_DB: sitedb
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+        restart: always
+    nginx:
+        build:
+            context: .
+            dockerfile: docker/nginx/Dockerfile
+        depends_on:
+            - webapp
+        volumes:
+            - static_files:/static_files
+            - media:/project/media
+        ports:
+            - 80:80
+
+
+# docker-compose build
+# docker-compose run --rm webapp python manage.py collectstatic
+# docker-compose run --rm webapp python manage.py migrate
+# docker-compose run --rm webapp python manage.py createsuperuser
+# docker-compose up
+# docker-compose down -v
