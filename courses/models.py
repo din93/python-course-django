@@ -66,10 +66,10 @@ class Course(TimeStamp, HideableMixin):
         return bool(self.thumbnail)
 
     def is_user_teacher(self, user):
-        return user in self.teachers.all()
+        return self.teachers.filter(id=user.id).exists()
 
     def is_user_student(self, user):
-        return user in self.students.all()
+        return self.students.filter(id=user.id).exists()
 
 class CourseChapter(models.Model):
     title = models.CharField(max_length=50, unique=False)

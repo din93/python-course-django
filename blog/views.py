@@ -7,19 +7,28 @@ from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View
 from django.views.generic.base import ContextMixin
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.db.models import Q
 
 class BlogHomeView(ListView):
     model = Article
     template_name = 'blog/blog-home.html'
     context_object_name = 'articles'
-    queryset = Article.objects.select_related('author').filter(is_shown=True)
     paginate_by = 20
-    ordering = ['-created']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.all()
         return context
+    
+    def get_queryset(self):
+        queryset = Article.objects.select_related('author').filter(is_shown=True).order_by('-created')
+        if self.request.GET.get("search"):
+            search_text = self.request.GET.get("search")
+            queryset = queryset.filter(Q(title__contains=search_text) | Q(text__contains=search_text)).distinct()
+        if self.request.GET.get("category"):
+            category = Category.objects.get(name=self.request.GET.get("category"))
+            queryset = queryset.filter(categories=category)
+        return queryset
 
 class CreateArticleView(LoginRequiredMixin, CreateView):
     model = Article
@@ -57,7 +66,7 @@ class DetailArticleView(DetailView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context['article_commentaries'] = context['article'].get_shown_commentaries().select_related('author').all()
+        context['article_commentaries'] = context['article'].get_shown_commentaries().select_related('author').all().order_by('created')
         context['commentary_form'] = CommentaryForm()
         return context
 
