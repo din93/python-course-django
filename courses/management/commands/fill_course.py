@@ -26,21 +26,12 @@ class Command(BaseCommand):
             chapter = mixer.blend(models.CourseChapter, number=chapter_number+1, course=course)
 
             for lesson_number in range(random.randrange(2, 5)):
-                lesson = mixer.blend(models.Lesson, chapter=chapter, number=lesson_number+1)
+                lesson = mixer.blend(models.Lesson, chapter=chapter, number=lesson_number+1, description='\n'.join(fake.paragraphs(nb=random.randrange(6, 16))))
 
                 homework = mixer.blend(models.Homework, lesson=lesson)
 
                 for student in course.students.all():
                     if random.randint(0, 1) == 1:
                         mixer.blend(models.HomeWorkRespond, homework=homework, student=student)
-
-                for _ in range(random.randrange(1, 4)):
-                    
-                    quiz_question = mixer.blend(models.QuizQuestion, lesson=lesson)
-                    quiz_question.text = quiz_question.text.replace('.', '').capitalize()+'?'
-                    quiz_question.save()
-
-                    for answer_index in range(5):
-                        mixer.blend(models.QuizOption, text=fake.color_name(), is_right=answer_index==3, question=quiz_question)
 
         self.stdout.write(f'Successfully added a course named "{course.title}"')

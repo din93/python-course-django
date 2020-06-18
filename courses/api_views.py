@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from courses.models import Course, CourseChapter, Lesson, Homework, HomeWorkRespond, QuizQuestion, QuizOption
-from courses.serializers import CourseSerializer, CourseChapterSerializer, LessonSerializer, HomeworkSerializer, HomeWorkRespondSerializer, QuizQuestionSerializer, QuizOptionSerializer
+from courses.models import Course, CourseChapter, Lesson, Homework, HomeWorkRespond
+from courses.serializers import CourseSerializer, CourseChapterSerializer, LessonSerializer, HomeworkSerializer, HomeWorkRespondSerializer
 from courses.permissions import IsTeacherOrStudentReadOnly, IsStudentOrTeacherReadOnly
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
 from django.db.models import Q
@@ -36,7 +36,7 @@ class CourseChapterViewSet(viewsets.ModelViewSet):
 class LessonViewSet(viewsets.ModelViewSet):
     permission_classes = [IsTeacherOrStudentReadOnly]
     authentication_classes = [SessionAuthentication, BasicAuthentication, TokenAuthentication]
-    queryset = Lesson.objects.prefetch_related('lesson_homeworks', 'lesson_quiz_questions')
+    queryset = Lesson.objects.prefetch_related('lesson_homeworks')
     serializer_class = LessonSerializer
 
     def get_queryset(self):
@@ -72,33 +72,5 @@ class HomeWorkRespondViewSet(viewsets.ModelViewSet):
             return self.queryset
         elif self.request.user.is_authenticated:
             return self.queryset.filter(Q(homework__lesson__chapter__course__teachers__pk=self.request.user.pk) | Q(homework__lesson__chapter__course__students__pk=self.request.user.pk)).distinct()
-        else:
-            return []
-
-class QuizQuestionViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsTeacherOrStudentReadOnly]
-    authentication_classes = [SessionAuthentication, BasicAuthentication, TokenAuthentication]
-    queryset = QuizQuestion.objects.prefetch_related('question_options')
-    serializer_class = QuizQuestionSerializer
-
-    def get_queryset(self):
-        if self.request.user.is_superuser:
-            return self.queryset
-        elif self.request.user.is_authenticated:
-            return self.queryset.filter(Q(lesson__chapter__course__teachers__pk=self.request.user.pk) | Q(lesson__chapter__course__students__pk=self.request.user.pk)).distinct()
-        else:
-            return []
-
-class QuizOptionViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsTeacherOrStudentReadOnly]
-    authentication_classes = [SessionAuthentication, BasicAuthentication, TokenAuthentication]
-    queryset = QuizOption.objects.all()
-    serializer_class = QuizOptionSerializer
-
-    def get_queryset(self):
-        if self.request.user.is_superuser:
-            return self.queryset
-        elif self.request.user.is_authenticated:
-            return self.queryset.filter(Q(question__lesson__chapter__course__teachers__pk=self.request.user.pk) | Q(question__lesson__chapter__course__students__pk=self.request.user.pk)).distinct()
         else:
             return []

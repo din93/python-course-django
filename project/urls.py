@@ -20,7 +20,7 @@ from django.conf.urls.static import static
 import courses
 from rest_framework import routers
 from blog.api_views import ArticleViewSet, CommentaryViewSet, CategoryViewSet
-from courses.api_views import CourseViewSet, CourseChapterViewSet, LessonViewSet, HomeworkViewSet, HomeWorkRespondViewSet, QuizQuestionViewSet, QuizOptionViewSet
+from courses.api_views import CourseViewSet, CourseChapterViewSet, LessonViewSet, HomeworkViewSet, HomeWorkRespondViewSet
 from users.api_views import CoursesUserViewSet
 
 router = routers.DefaultRouter()
@@ -32,8 +32,6 @@ router.register(r'course_chapters', CourseChapterViewSet)
 router.register(r'lessons', LessonViewSet)
 router.register(r'homeworks', HomeworkViewSet)
 router.register(r'homework_responds', HomeWorkRespondViewSet)
-router.register(r'quiz_questions', QuizQuestionViewSet)
-router.register(r'quiz_options', QuizOptionViewSet)
 router.register(r'users', CoursesUserViewSet)
 
 urlpatterns = [

@@ -163,23 +163,8 @@
           <small>/ <a href="#">Добавить вопрос (WIP)</a></small>
           {% endif %}
         </h2>
-        <p>{{active_lesson.description|safe}}</p>
+        <p>{{active_lesson.description|safe|linebreaks}}</p>
         <p>Ориентировочное время освоения: {{active_lesson.estimated_time_min}} минут</p>
-        {% with lesson_quiz_questions=active_lesson.lesson_quiz_questions.all %}
-          {% if lesson_quiz_questions %}
-            <h4>Вопросы:</h4>
-            <ul>
-              {% for quiz_question in lesson_quiz_questions %}
-              <li>{{quiz_question.text}} ({{quiz_question.points}} очков)</li>
-              <ul>
-                {% for quiz_option in quiz_question.question_options.all %}
-                <li>{{quiz_option.text}} ({{ quiz_option.is_right }})</li>
-                {% endfor %}
-              </ul>
-              {% endfor %}
-            </ul>
-          {% endif %}
-        {% endwith %}
 
         {% with lesson_homework=active_lesson.get_homework %}
           {% if lesson_homework %}

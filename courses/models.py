@@ -107,38 +107,6 @@ class Lesson(TimeStamp, HideableMixin):
     def is_user_student(self, user):
         return self.chapter.course.is_user_student(user)
 
-class QuizQuestion(models.Model):
-    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='lesson_quiz_questions')
-    text = models.TextField()
-    points = models.PositiveSmallIntegerField()
-
-    def __str__(self):
-        return self.text
-
-    @cached_property
-    def get_options(self):
-        return QuizOption.objects.filter(question=self)
-    
-    def is_user_teacher(self, user):
-        return self.lesson.chapter.course.is_user_teacher(user)
-
-    def is_user_student(self, user):
-        return self.lesson.chapter.course.is_user_student(user)
-
-class QuizOption(models.Model):
-    question = models.ForeignKey(QuizQuestion, on_delete=models.CASCADE, related_name='question_options')
-    text = models.CharField(max_length=200)
-    is_right = models.BooleanField()
-
-    def __str__(self):
-        return self.text
-
-    def is_user_teacher(self, user):
-        return self.question.lesson.chapter.course.is_user_teacher(user)
-
-    def is_user_student(self, user):
-        return self.question.lesson.chapter.course.is_user_student(user)
-
 class Homework(TimeStamp):
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='lesson_homeworks')
     text = models.TextField()

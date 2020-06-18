@@ -1,6 +1,6 @@
 from django.test import TestCase, Client
 from mixer.backend.django import mixer
-from courses.models import Course, CourseChapter, Lesson, Homework, HomeWorkRespond, QuizQuestion, QuizOption
+from courses.models import Course, CourseChapter, Lesson, Homework, HomeWorkRespond
 from users.models import CoursesUser
 
 class CourseTestCase(TestCase):
@@ -70,41 +70,11 @@ class LessonTestCase(TestCase):
     def setUp(self):
         self.lesson = mixer.blend(Lesson)
 
-    def test_get_questions(self):
-        
-        quiz_question1 = mixer.blend(QuizQuestion, lesson=self.lesson)
-        self.assertListEqual(
-            list(self.lesson.lesson_quiz_questions.all()),
-            [quiz_question1]
-        )
-        quiz_question2 = mixer.blend(QuizQuestion, text='Test Question 2', lesson=self.lesson)
-        self.assertListEqual(
-            list(self.lesson.lesson_quiz_questions.all()),
-            [quiz_question1, quiz_question2]
-        )
-        self.assertEqual(self.lesson.lesson_quiz_questions.all()[1].text, 'Test Question 2')
-
     def test_get_homework(self):
         homework = mixer.blend(Homework, text='Test Homework', lesson=self.lesson)
 
         self.assertEqual(self.lesson.get_homework, homework)
         self.assertEqual(self.lesson.get_homework.text, 'Test Homework')
-
-class QuizQuestionsTestCase(TestCase):
-
-    def test_get_options(self):
-        quiz_question = mixer.blend(QuizQuestion)
-        quiz_option1 = mixer.blend(QuizOption, text='Test Option 1', question=quiz_question)
-        self.assertListEqual(
-            list(quiz_question.question_options.all()),
-            [quiz_option1]
-        )
-        quiz_option2 = mixer.blend(QuizOption, question=quiz_question)
-        self.assertListEqual(
-            list(quiz_question.question_options.all()),
-            [quiz_option1, quiz_option2]
-        )
-        self.assertEqual(quiz_question.question_options.first().text, 'Test Option 1')
 
 class HomeWorkTestCase(TestCase):
 
