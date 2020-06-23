@@ -1,5 +1,5 @@
 from django import forms
-from courses.models import HomeWorkRespond, Course, CourseChapter, Lesson, Homework
+from courses.models import HomeWorkRespond, Course, CourseChapter, Lesson, Homework, HWRespondCommentary
 
 class HomeWorkRespondForm(forms.ModelForm):
     class Meta:
@@ -45,4 +45,13 @@ class HomeWorkForm(forms.ModelForm):
         widgets = {
             'points': forms.NumberInput(attrs={'class': 'form-control'}),
             'text': forms.Textarea(attrs={'class': 'form-control', 'rows': 6}),
+        }
+
+class HWRespondCommentaryForm(forms.ModelForm):
+    class Meta:
+        model = HWRespondCommentary
+        fields = ['text']
+
+        widgets = {
+            'text': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Добавить комментарий'}),
         }

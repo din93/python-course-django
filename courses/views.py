@@ -134,6 +134,7 @@ class CourseLessonsView(UserPassesTestMixin, DetailView):
         context['hw_respond_form'] = forms.HomeWorkRespondForm()
         context['chapter_form'] = forms.CourseChapterForm()
         context['lesson_form'] = forms.LessonForm()
+        context['commentary_form'] = forms.HWRespondCommentaryForm()
         return context
 
 class HomeWorkRespondView(View):
@@ -152,3 +153,30 @@ class HomeWorkRespondView(View):
             new_homework_respond.save()
 
         return HttpResponseRedirect(reverse('courses:lessons', kwargs = {'pk': course.pk})+f'?lesson_id={lesson_id}')
+
+class HWRespondCommentView(LoginRequiredMixin, View):
+    def post(self, request, hw_respond_id):
+        homework_respond = get_object_or_404(models.HomeWorkRespond, id=hw_respond_id)
+        commentary_form = forms.HWRespondCommentaryForm(request.POST)
+        if commentary_form.is_valid() and commentary_form.has_changed():
+            new_commentary = models.HWRespondCommentary(
+                author=request.user,
+                text=commentary_form.cleaned_data['text'],
+                homework_respond=homework_respond
+            )
+            new_commentary.save()
+
+            active_lesson = homework_respond.homework.lesson
+            active_course = active_lesson.chapter.course
+
+            return HttpResponseRedirect(reverse('courses:lessons', kwargs = {'pk': active_course.pk})+f'?lesson_id={active_lesson.id}')
+
+class AcceptHWRespondView(LoginRequiredMixin, View):
+    def post(self, request, hw_respond_id):
+        homework_respond = get_object_or_404(models.HomeWorkRespond, id=hw_respond_id)
+        homework_respond.is_accepted = True
+        homework_respond.save()
+        active_lesson = homework_respond.homework.lesson
+        active_course = active_lesson.chapter.course
+
+        return HttpResponseRedirect(reverse('courses:lessons', kwargs = {'pk': active_course.pk})+f'?lesson_id={active_lesson.id}')

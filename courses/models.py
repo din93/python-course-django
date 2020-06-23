@@ -141,3 +141,14 @@ class HomeWorkRespond(TimeStamp):
 
     def is_user_student(self, user):
         return self.homework.lesson.chapter.course.is_user_student(user)
+
+class HWRespondCommentary(TimeStamp, HideableMixin):
+    author = models.ForeignKey(CoursesUser, on_delete=models.CASCADE, related_name='user_commentaries_to_homework_respond')
+    text = models.CharField('Текст комментария', max_length=200)
+    homework_respond = models.ForeignKey(HomeWorkRespond, on_delete=models.CASCADE, related_name='homework_respond_commentaries')
+
+    def __str__(self):
+        return f'From "{self.author.username}": {self.text}'
+
+    class Meta:
+        verbose_name_plural = 'HWRespondCommentaries'

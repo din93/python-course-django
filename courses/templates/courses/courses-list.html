@@ -37,12 +37,16 @@
         <h3>Курс "{{course.title}}"</h3>
         <p>{{course.overview|truncatewords_html:40|linebreaksbr}}</p>
         {% if course.prereqs %}
-        <h4>Необходимые знания:</h3>
-        <p>{{course.prereqs|truncatewords_html:35|linenumbers|linebreaksbr}}</p>
+          <h5>Необходимые знания:</h5>
+          <p>{{course.prereqs|truncatewords_html:35|linenumbers|linebreaksbr}}</p>
         {% endif %}
-        <a class="btn btn-link" href="{% url 'courses:lessons' pk=course.pk %}">
-          Список лекций
-        </a>
+          <a href="{% url 'courses:lessons' pk=course.pk %}">
+            <button class="btn btn-sm btn-info mb-3">Перейти к лекциям</button>
+          </a>
+        {% if course.teachers.count %}
+          <h5>Преподаватели курса: {{ course.teachers.all|join:", " }}</h5>
+        {% endif %}
+        <h5>{{course.students.count}} участников</h5>
       </div>
     </div>
     <!-- /.row -->

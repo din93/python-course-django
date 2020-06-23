@@ -7,7 +7,7 @@
 
     {% block page_heading %}
     <h1 class="mt-4 mb-3">
-      Курс: {{course.title|capitalize}}
+      Занятия курса "{{course.title|capitalize}}"
     </h1>
     {% endblock %}
 
@@ -19,11 +19,11 @@
       <li class="breadcrumb-item">
         <a href="{% url 'courses:list' %}">Доступные курсы</a>
       </li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'courses:detail' pk=course.pk %}">Курс "{{course.title|capitalize|truncatechars:30}}"</a>
+      </li>
       <li class="breadcrumb-item active">
-        Лекции курса "{{course.title|capitalize}}":
-        (<span>
-          <a href="{% url 'courses:detail' pk=course.pk %}">О курсе</a>
-        </span>)
+        Занятие "{{active_lesson.title|capitalize|truncatechars:40}}"
       </li>
     </ol>
     {% endblock %}
@@ -158,13 +158,11 @@
         <h2>
           {{active_lesson.title|capitalize}}
           {% if user.is_superuser or user in course.teachers.all %}
-          <br>
-          <small><a href="{% url 'courses:update_lesson' pk=active_lesson.pk %}">Внести правки</a></small>
-          <small>/ <a href="#">Добавить вопрос (WIP)</a></small>
+          <small><a href="{% url 'courses:update_lesson' pk=active_lesson.pk %}"><small>&#9998;</small></a></small>
           {% endif %}
         </h2>
         <p>{{active_lesson.description|safe|linebreaks}}</p>
-        <p>Ориентировочное время освоения: {{active_lesson.estimated_time_min}} минут</p>
+        <p class="mb-5"><b>Ориентировочное время освоения: {{active_lesson.estimated_time_min}} минут</b></p>
 
         {% with lesson_homework=active_lesson.get_homework %}
           {% if lesson_homework %}
@@ -172,13 +170,13 @@
               Домашнее задание ({{lesson_homework.points}} очков):
               {% if user.is_superuser or user in course.teachers.all %}
               <small>
-                <a href="{% url 'courses:update_homework' pk=lesson_homework.pk %}">Внести правки</a>
+                <a href="{% url 'courses:update_homework' pk=lesson_homework.pk %}"><small>&#9998;</small></a>
               </small>
               {% endif %}
             </h4>
             <p>{{lesson_homework.text}}</p>
             
-            {% if user not in lesson_homework.get_responded_students %}
+            {% if user in course.students.all and user not in lesson_homework.get_responded_students %}
             <div class="card my-4">
               <h5 class="card-header">Ваш ответ:</h5>
               <div class="card-body">
@@ -195,15 +193,53 @@
             </div>
             {% endif %}
             
-            {% for hw_respond in lesson_homework.homework_responds.all %}
-            <div class="card my-4">
-              <h5 class="card-header">Ответ ученика {{hw_respond.student}}</h5>
+            {% for hw_respond in lesson_homework.homework_responds.all|dictsort:"created" %}
+            <div class="card mt-5 mb-3">
+              <h5 class="card-header">
+                <span>Ответ ученика {{hw_respond.student}}</span>
+                {% if hw_respond.is_accepted %}
+                  <span class="badge badge-success float-right">Принято</span>
+                {% else %}
+                  <span class="badge badge-secondary float-right">Ожидает проверки</span>
+                {% endif %}
+              </h5>
               <div class="card-body">
                 <p>{{hw_respond.text}}</p>
-                <p>Отправлено {{hw_respond.created}}</p>
-                <span class="badge">{% if hw_respond.is_accepted %}Принят{% else %}Ожидает проверки{% endif %}</span>
+                <p>
+                  <a href="{{hw_respond.file_attachment.url}}" download >
+                    <button class="btn btn-sm btn-info">Скачать вложение</button>
+                  </a>
+                </p>
+                <span class="badge badge-pill badge-light">Отправлено {{hw_respond.created}}</span>
+                {% if user in course.teachers.all and not hw_respond.is_accepted %}
+                <form class="float-right" method='post' action="{% url 'courses:accept_hw_respond' hw_respond_id=hw_respond.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-primary">
+                    Принять работу
+                  </button>
+                </form>
+                {% endif %}
               </div>
             </div>
+
+            {% for commentary in hw_respond.homework_respond_commentaries.all|dictsort:"created" %}
+              <div class="media ml-5 mb-3">
+                <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
+                <div class="media-body">
+                  <h5 class="mt-0">{{commentary.author}}</h5>
+                  {{commentary.text}}
+                </div>
+              </div>
+            {% endfor %}
+
+            <form class="ml-5" method="post" action="{% url 'courses:hw_respond_commentary' hw_respond_id=hw_respond.id %}">
+              <div class="form-group">
+                {% csrf_token %}
+                {{commentary_form.text}}
+              </div>
+              <button type="submit" class="btn btn-sm btn-primary">Добавить комментарий</button>
+            </form>
+
             {% endfor %}
             
           {% endif %}

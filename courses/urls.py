@@ -13,4 +13,6 @@ urlpatterns = [
     path('lessons/<int:pk>/', views.CourseLessonsView.as_view(), name='lessons'),
     path('detail/<int:pk>/', views.CourseDetailView.as_view(), name='detail'),
     path('hw_respond/<int:course_id>/<int:lesson_id>', views.HomeWorkRespondView.as_view(), name='hw_respond'),
+    path('hw_respond_commentary/<int:hw_respond_id>', views.HWRespondCommentView.as_view(), name='hw_respond_commentary'),
+    path('accept_hw_respond/<int:hw_respond_id>', views.AcceptHWRespondView.as_view(), name='accept_hw_respond'),
 ]

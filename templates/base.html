@@ -32,10 +32,7 @@
       <div class="collapse navbar-collapse" id="navbarResponsive">
         <ul class="navbar-nav ml-auto">
           <li class="nav-item">
-            <a class="nav-link" href="#">О нас</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Обращение</a>
+            <a class="nav-link" href="#">Главная</a>
           </li>
           {% url 'courses:list' as courses_list %}
           {% url 'courses:detail' as courses_detail %}
@@ -48,6 +45,9 @@
             <a class="nav-link" href="{% url 'blog:home' %}">
               Блог сайта
             </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">О сайте</a>
           </li>
           {% url 'users:login' as users_login %}
           {% url 'users:register' as users_register %}
