@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
+from mixer.backend.django import mixer
+from faker import Faker
 from blog.models import Category
-import requests, random
 
 class Command(BaseCommand):
     help = 'Adds random filler for categories'
@@ -9,12 +10,9 @@ class Command(BaseCommand):
         parser.add_argument('num_categories', nargs='+', type=int)
 
     def handle(self, *args, **options):
+        fake = Faker()
         num_categories = options['num_categories'][0]
-        category_names = requests.get(f'http://names.drycodes.com/{num_categories}?nameOptions=planets').json()
-        for category_name in list(set(category_names)):
-            description = requests.get(f'https://baconipsum.com/api/?type=meat-and-filler&sentences={random.randrange(1, 4)}&format=text').text
-
-            new_category = Category(name=category_name, description=description)
-            new_category.save()
+        for _ in range(num_categories):
+            mixer.blend(Category, name=fake.color_name())
 
         self.stdout.write(f'Successfully added {num_categories} categories')

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from courses.models import Course, CourseChapter, Lesson, Homework, HomeWorkRespond, QuizQuestion, QuizOption
+from courses.models import Course, CourseChapter, Lesson, Homework, HomeWorkRespond
 from users.serializers import CoursesUserSerializer
 
 class HomeWorkRespondSerializer(serializers.HyperlinkedModelSerializer):
@@ -14,19 +14,7 @@ class HomeworkSerializer(serializers.HyperlinkedModelSerializer):
         model = Homework
         fields = '__all__'
 
-class QuizOptionSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = QuizOption
-        fields = '__all__'
-
-class QuizQuestionSerializer(serializers.HyperlinkedModelSerializer):
-    question_options = QuizOptionSerializer(read_only=True, many=True)
-    class Meta:
-        model = QuizQuestion
-        fields = '__all__'
-
 class LessonSerializer(serializers.HyperlinkedModelSerializer):
-    lesson_quiz_questions = QuizQuestionSerializer(read_only=True, many=True)
     lesson_homeworks = HomeworkSerializer(read_only=True, many=True)
     class Meta:
         model = Lesson

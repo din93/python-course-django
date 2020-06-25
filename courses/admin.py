@@ -16,7 +16,6 @@ class CourseAdmin(admin.ModelAdmin):
 admin.site.register(models.Course, CourseAdmin)
 admin.site.register(models.CourseChapter)
 admin.site.register(models.Lesson)
-admin.site.register(models.QuizQuestion)
-admin.site.register(models.QuizOption)
 admin.site.register(models.Homework)
 admin.site.register(models.HomeWorkRespond)
+admin.site.register(models.HWRespondCommentary)

@@ -1,24 +1,21 @@
 {% extends "base.html" %}
 
 {% block page_title %}
-  Форма курса
+  Форма тренинга
 {% endblock %}
 
     {% block page_heading %}
     <h1 class="mt-4 mb-3">
-      Форма курса
+      Форма тренинга
     </h1>
     {% endblock %}
 
     {% block page_breadcrumb %}
     <ol class="breadcrumb">
       <li class="breadcrumb-item">
-        <a href="/">Домашняя страница</a>
+        <a href="{% url 'courses:list' %}">Список тренингов</a>
       </li>
-      <li class="breadcrumb-item">
-        <a href="{% url 'courses:list' %}">Доступные курсы</a>
-      </li>
-      <li class="breadcrumb-item active">Форма курса</li>
+      <li class="breadcrumb-item active">Форма тренинга</li>
     </ol>
     {% endblock %}
 

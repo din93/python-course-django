@@ -45,11 +45,11 @@ class Course(TimeStamp, HideableMixin):
                 course = self
             )
             new_lesson = Lesson.objects.create(
-                title = 'Название занятия',
+                title = 'Название урока',
                 chapter = new_chapter,
                 number = 1,
                 estimated_time_min = 10,
-                description = 'Текст занятия'
+                description = 'Текст урока'
             )
             new_homework = Homework.objects.create(
                 lesson = new_lesson,
@@ -66,10 +66,10 @@ class Course(TimeStamp, HideableMixin):
         return bool(self.thumbnail)
 
     def is_user_teacher(self, user):
-        return user in self.teachers.all()
+        return self.teachers.filter(id=user.id).exists()
 
     def is_user_student(self, user):
-        return user in self.students.all()
+        return self.students.filter(id=user.id).exists()
 
 class CourseChapter(models.Model):
     title = models.CharField(max_length=50, unique=False)
@@ -107,38 +107,6 @@ class Lesson(TimeStamp, HideableMixin):
     def is_user_student(self, user):
         return self.chapter.course.is_user_student(user)
 
-class QuizQuestion(models.Model):
-    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='lesson_quiz_questions')
-    text = models.TextField()
-    points = models.PositiveSmallIntegerField()
-
-    def __str__(self):
-        return self.text
-
-    @cached_property
-    def get_options(self):
-        return QuizOption.objects.filter(question=self)
-    
-    def is_user_teacher(self, user):
-        return self.lesson.chapter.course.is_user_teacher(user)
-
-    def is_user_student(self, user):
-        return self.lesson.chapter.course.is_user_student(user)
-
-class QuizOption(models.Model):
-    question = models.ForeignKey(QuizQuestion, on_delete=models.CASCADE, related_name='question_options')
-    text = models.CharField(max_length=200)
-    is_right = models.BooleanField()
-
-    def __str__(self):
-        return self.text
-
-    def is_user_teacher(self, user):
-        return self.question.lesson.chapter.course.is_user_teacher(user)
-
-    def is_user_student(self, user):
-        return self.question.lesson.chapter.course.is_user_student(user)
-
 class Homework(TimeStamp):
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='lesson_homeworks')
     text = models.TextField()
@@ -173,3 +141,14 @@ class HomeWorkRespond(TimeStamp):
 
     def is_user_student(self, user):
         return self.homework.lesson.chapter.course.is_user_student(user)
+
+class HWRespondCommentary(TimeStamp, HideableMixin):
+    author = models.ForeignKey(CoursesUser, on_delete=models.CASCADE, related_name='user_commentaries_to_homework_respond')
+    text = models.CharField('Текст комментария', max_length=200)
+    homework_respond = models.ForeignKey(HomeWorkRespond, on_delete=models.CASCADE, related_name='homework_respond_commentaries')
+
+    def __str__(self):
+        return f'From "{self.author.username}": {self.text}'
+
+    class Meta:
+        verbose_name_plural = 'HWRespondCommentaries'

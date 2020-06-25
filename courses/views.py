@@ -2,7 +2,7 @@ from django.shortcuts import render, get_list_or_404, get_object_or_404
 from django.http import HttpResponseRedirect
 from courses import forms, models
 from django.urls import reverse_lazy, reverse
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View, TemplateView
 from django.views.generic.base import ContextMixin
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
@@ -55,6 +55,16 @@ class UpdateChapterView(UserPassesTestMixin, UpdateView):
     def get_success_url(self):
         return reverse('courses:lessons', kwargs={'pk': self.object.course.pk})
 
+class DeleteChapterView(UserPassesTestMixin, DeleteView):
+    model = models.CourseChapter
+    context_object_name = 'course_chapter'
+
+    def test_func(self):
+        return self.request.user.is_superuser or self.object.course.teachers.filter(id=self.request.user.id).exists()
+
+    def get_success_url(self):
+        return reverse('courses:lessons', kwargs={'pk': self.object.course.pk})
+
 class CreateLessonView(UserPassesTestMixin, CreateView):
     def test_func(self):
         return self.request.user.is_superuser
@@ -92,6 +102,16 @@ class UpdateLessonView(UserPassesTestMixin, UpdateView):
     def get_success_url(self):
         return reverse('courses:lessons', kwargs={'pk': self.object.chapter.course.pk})+f'?lesson_id={self.object.id}'
 
+class DeleteLessonView(UserPassesTestMixin, DeleteView):
+    model = models.Lesson
+    context_object_name = 'chapter_lesson'
+
+    def test_func(self):
+        return self.request.user.is_superuser or self.object.chapter.course.teachers.filter(id=self.request.user.id).exists()
+
+    def get_success_url(self):
+        return reverse('courses:lessons', kwargs={'pk': self.object.chapter.course.pk})
+
 class UpdateHomeworkView(UserPassesTestMixin, UpdateView):
     model = models.Homework
     form_class = forms.HomeWorkForm
@@ -102,6 +122,17 @@ class UpdateHomeworkView(UserPassesTestMixin, UpdateView):
 
     def get_success_url(self):
         return reverse('courses:lessons', kwargs={'pk': self.object.lesson.chapter.course.pk})+f'?lesson_id={self.object.lesson.id}'
+
+class CoursesMain(TemplateView):
+    template_name = 'courses/courses-main.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['courses_count'] = models.Course.objects.count()
+        context['users_count'] = models.CoursesUser.objects.count()
+        context['hw_responds_count'] = models.HomeWorkRespond.objects.count()
+        return context
 
 class CoursesListView(ListView):
     model = models.Course
@@ -134,6 +165,7 @@ class CourseLessonsView(UserPassesTestMixin, DetailView):
         context['hw_respond_form'] = forms.HomeWorkRespondForm()
         context['chapter_form'] = forms.CourseChapterForm()
         context['lesson_form'] = forms.LessonForm()
+        context['commentary_form'] = forms.HWRespondCommentaryForm()
         return context
 
 class HomeWorkRespondView(View):
@@ -152,3 +184,30 @@ class HomeWorkRespondView(View):
             new_homework_respond.save()
 
         return HttpResponseRedirect(reverse('courses:lessons', kwargs = {'pk': course.pk})+f'?lesson_id={lesson_id}')
+
+class HWRespondCommentView(LoginRequiredMixin, View):
+    def post(self, request, hw_respond_id):
+        homework_respond = get_object_or_404(models.HomeWorkRespond, id=hw_respond_id)
+        commentary_form = forms.HWRespondCommentaryForm(request.POST)
+        if commentary_form.is_valid() and commentary_form.has_changed():
+            new_commentary = models.HWRespondCommentary(
+                author=request.user,
+                text=commentary_form.cleaned_data['text'],
+                homework_respond=homework_respond
+            )
+            new_commentary.save()
+
+            active_lesson = homework_respond.homework.lesson
+            active_course = active_lesson.chapter.course
+
+            return HttpResponseRedirect(reverse('courses:lessons', kwargs = {'pk': active_course.pk})+f'?lesson_id={active_lesson.id}')
+
+class AcceptHWRespondView(LoginRequiredMixin, View):
+    def post(self, request, hw_respond_id):
+        homework_respond = get_object_or_404(models.HomeWorkRespond, id=hw_respond_id)
+        homework_respond.is_accepted = True
+        homework_respond.save()
+        active_lesson = homework_respond.homework.lesson
+        active_course = active_lesson.chapter.course
+
+        return HttpResponseRedirect(reverse('courses:lessons', kwargs = {'pk': active_course.pk})+f'?lesson_id={active_lesson.id}')

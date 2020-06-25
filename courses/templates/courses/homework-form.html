@@ -13,12 +13,9 @@
     {% block page_breadcrumb %}
     <ol class="breadcrumb">
       <li class="breadcrumb-item">
-        <a href="/">Домашняя страница</a>
+        <a href="{% url 'courses:list' %}">Список тренингов</a>
       </li>
-      <li class="breadcrumb-item">
-        <a href="{% url 'courses:list' %}">Доступные курсы</a>
-      </li>
-      <li class="breadcrumb-item"><a href="{% url 'courses:lessons' pk=object.lesson.chapter.course.pk %}">Курс "{{object.chapter.course.title}}"</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'courses:lessons' pk=object.lesson.chapter.course.pk %}">Тренинг "{{object.chapter.course.title}}"</a></li>
       <li class="breadcrumb-item">Блок "{{object.lesson.chapter.number}}: {{object.lesson.chapter.title}}"</li>
       <li class="breadcrumb-item active">Форма ДЗ по лекции "{{object.lesson.title}}"</li>
     </ol>
