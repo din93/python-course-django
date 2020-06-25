@@ -6,38 +6,64 @@
 
 {% block page_heading %}
   <h1 class="mt-4 mb-3">
-    Пользователь: {{object.username}}
+    Профиль пользователя
   </h1>
 {% endblock %}
 
 {% block page_breadcrumb %}{% endblock %}
     
 {% block page_content %}
-    <div class="row mb-4">
-        <div class="col-md-12">
-        {% if object.avatar %}
-            <img class="img-fluid" src="{{object.avatar}}" alt="user_avatar">
-        {% endif %}
-        <div class="my-3">Имя пользователя: {{object.username}}</div>
-        <div class="my-3">Email: {{object.email}}</div>
-        <div class="my-3">
-            Токен:
-            {% if object.auth_token %}
-                {{object.auth_token}}
-            {% else %}
-                Не обнаружен
-            {% endif %}
+    <div class="container" style="height: 500px;">
+
+        <div class="row mb-4">
+            <div class="col-md-12 bg-light rounded-lg p-4">
+                <div class="row">
+                    <div class="col-md-2">
+                        {% if object.avatar %}
+                            <img class="d-flex m-4 rounded-circle" style="width:100px;height:100px;" src="{{object.avatar.url}}" alt="profile_picture">
+                        {% endif %}
+                    </div>
+                    <div class="col-md-10">
+                        <div class="my-3"><b>Имя:</b> {{object.username}}</div>
+                        <div class="my-3"><b>Email:</b> {{object.email}}</div>
+                        {% if student_courses.count %}
+                        <div class="my-3"><b>Участник курсов:</b><br/>
+                          {% for course in student_courses.all %}
+                            <a class="btn btn-outline-info btn-sm" href="{% url 'courses:lessons' pk=course.pk %}">{{course.title}} </a>
+                          {% endfor %}
+                        </div>
+                        {% endif %}
+                        {% if teacher_courses.count %}
+                        <div class="my-3"><b>Преподаватель курсов:</b><br/>
+                          {% for course in teacher_courses.all %}
+                            <a class="btn btn-outline-info btn-sm" href="{% url 'courses:lessons' pk=course.pk %}">{{course.title}} </a>
+                          {% endfor %}
+                        </div>
+                        {% endif %}
+                        <div class="my-3">
+                            <b>Токен:</b>
+                            {% if object.auth_token %}
+                                {{object.auth_token}}
+                            {% else %}
+                                Не обнаружен
+                            {% endif %}
+                        </div>
+                        {% if object == user %}
+                        <form method="POST" class="mt-3" action="{% url 'users:update_token' %}">
+                            {% csrf_token %}
+                            <button type=submit class="btn btn-outline-danger">
+                                {% if object.auth_token %}
+                                    Обновить токен
+                                {% else %}
+                                    Создать токен
+                                {% endif %}
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
         </div>
-        <form method="POST" class="my-3" action="{% url 'users:update_token' %}">
-            {% csrf_token %}
-            <button type=submit class="btn btn-primary">
-                {% if object.auth_token %}
-                    Обновить токен
-                {% else %}
-                    Создать токен
-                {% endif %}
-            </button>
-        </form>
-        </div>
+
     </div>
 {% endblock %}

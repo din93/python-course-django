@@ -45,11 +45,11 @@ class Course(TimeStamp, HideableMixin):
                 course = self
             )
             new_lesson = Lesson.objects.create(
-                title = 'Название занятия',
+                title = 'Название урока',
                 chapter = new_chapter,
                 number = 1,
                 estimated_time_min = 10,
-                description = 'Текст занятия'
+                description = 'Текст урока'
             )
             new_homework = Homework.objects.create(
                 lesson = new_lesson,

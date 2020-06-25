@@ -41,7 +41,7 @@ urlpatterns = [
     path('users/', include(('users.urls', 'users'), namespace='users')),
     path('api-auth/', include('rest_framework.urls')),
     path('api/v0/', include(router.urls)),
-    path('', courses.views.CoursesListView.as_view()),
+    path('', courses.views.CoursesMain.as_view()),
 ]
 
 if settings.DEBUG:

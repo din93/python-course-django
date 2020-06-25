@@ -1,57 +1,60 @@
 {% extends "base.html" %}
 
 {% block page_title %}
-  Доступные курсы
+  Список тренингов
 {% endblock %}
 
     {% block page_heading %}
     <h1 class="mt-4 mb-3">
-      Доступные курсы
+      Список тренингов
       {% if user.is_superuser %}
       <br>
-      <small><a href="{% url 'courses:create_course' %}">Добавить курс</a></small>
+      <small><a href="{% url 'courses:create_course' %}">Добавить тренинг</a></small>
       {% endif %}
     </h1>
     {% endblock %}
 
     {% block page_breadcrumb %}
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item">
-        <a href="/">Домашняя страница</a>
-      </li>
-      <li class="breadcrumb-item active">Доступные курсы</li>
-    </ol>
     {% endblock %}
 
     {% block page_content %}
     {% for course in courses %}
-    <div class="row">
-      <div class="col-md-7">
+    <div class="container">
+    <div class="row bg-light rounded-lg p-4">
+      <div class="col-md-12 mb-3">
+        <h2>
+          <a class="text-dark" href="{% url 'courses:detail' pk=course.pk %}">{{course.title}}</a>
+          {% if user in course.students.all %}
+            <span class="h5 float-right">Вы участник!</span>
+          {% endif %}
+        </h3>
+      </div>
+      <div class="col-md-5">
         <a href="{% url 'courses:detail' pk=course.pk %}">
           {% if course.has_thumbnail %}
-            <img class="img-fluid rounded mb-3 mb-md-0" src="{{course.get_thumbnail_url}}" alt="course_thumbnail">
+            <img class="img-fluid rounded-lg mb-3 mb-md-0" src="{{course.get_thumbnail_url}}" alt="course_thumbnail">
           {% endif %}
         </a>
       </div>
-      <div class="col-md-5">
-        <h3>Курс "{{course.title}}"</h3>
+      <div class="col-md-7">
+        {% if course.teachers.count > 1 %}
+          <p class="h5">Преподаватели тренинга: {{ course.teachers.all|join:", " }}</p>
+        {% elif course.teachers.count == 1 %}
+          <p class="h5">Преподаватель тренинга: {{ course.teachers.all|join:", " }}</p>
+        {% endif %}
         <p>{{course.overview|truncatewords_html:40|linebreaksbr}}</p>
+        <p class="h6 mb-3">Блоков занятий: {{course.course_chapters.count}}</p>
         {% if course.prereqs %}
           <h5>Необходимые знания:</h5>
           <p>{{course.prereqs|truncatewords_html:35|linenumbers|linebreaksbr}}</p>
         {% endif %}
-          <a href="{% url 'courses:lessons' pk=course.pk %}">
-            <button class="btn btn-sm btn-info mb-3">Перейти к лекциям</button>
-          </a>
-        {% if course.teachers.count %}
-          <h5>Преподаватели курса: {{ course.teachers.all|join:", " }}</h5>
-        {% endif %}
-        <h5>{{course.students.count}} участников</h5>
+        <p class="h5">{{course.students.count}} участников</p>
       </div>
     </div>
     <!-- /.row -->
+    </div>
 
-    <hr>
+    <br>
     {% endfor %}
 
     <!-- Pagination -->

@@ -2,28 +2,25 @@
 {% load str_extensions %}
 
 {% block page_title %}
-  Доступные курсы
+  Список тренингов
 {% endblock %}
 
     {% block page_heading %}
     <h1 class="mt-4 mb-3">
-      Занятия курса "{{course.title|capitalize}}"
+      Занятия тренинга "{{course.title|capitalize}}"
     </h1>
     {% endblock %}
 
     {% block page_breadcrumb %}
     <ol class="breadcrumb">
       <li class="breadcrumb-item">
-        <a href="/">Домашняя страница</a>
+        <a href="{% url 'courses:list' %}">Список тренингов</a>
       </li>
       <li class="breadcrumb-item">
-        <a href="{% url 'courses:list' %}">Доступные курсы</a>
-      </li>
-      <li class="breadcrumb-item">
-        <a href="{% url 'courses:detail' pk=course.pk %}">Курс "{{course.title|capitalize|truncatechars:30}}"</a>
+        <a href="{% url 'courses:detail' pk=course.pk %}">Тренинг "{{course.title|capitalize|truncatechars:30}}"</a>
       </li>
       <li class="breadcrumb-item active">
-        Занятие "{{active_lesson.title|capitalize|truncatechars:40}}"
+        Урок "{{active_lesson.title|capitalize|truncatechars:40}}"
       </li>
     </ol>
     {% endblock %}
@@ -33,7 +30,7 @@
     <div class="row">
       <!-- Sidebar Column -->
       <div class="col-lg-3 mb-4">
-          {% for chapter in course.course_chapters.all %}
+          {% for chapter in course.course_chapters.all|dictsort:"number" %}
 
           <div class="modal" tabindex="-1" id="updateChapter{{chapter.pk}}" role="dialog">
             <div class="modal-dialog" role="document">
@@ -61,22 +58,79 @@
             </div>
           </div>
 
-          <div class="list-group border">
+          <div class="modal" tabindex="-1" id="deleteChapter{{chapter.pk}}" role="dialog">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header bg-danger">
+                  <h5 class="modal-title">Подтвердите удаление блока {{chapter.number}}: <br/> "{{chapter.title|capitalize}}"</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  Внимание! Удаление блока повлечет за собой удаление всех вложенных уроков, а также сданные домашние работы, связанные с этим уроками!
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                  <form method="post" action="{% url 'courses:delete_chapter' pk=chapter.pk %}">
+                    {% csrf_token %}
+                    <button
+                      type="submit"
+                      class="btn btn-danger"
+                    >
+                      &#10060; удалить блок
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="list-group bg-light">
 
             <ul class="list-group list-group-horizontal">
-              <li class="list-group-item list-group-item-primary border-0">Блок {{chapter.number}}: {{chapter.title}}</li>
+              <li class="list-group-item list-group-item-secondary text-dark border-0 rounded-0">
+                Блок {{chapter.number}}: {{chapter.title}}
+              </li>
               {% if user.is_superuser or user in course.teachers.all %}
-              <button type="button" class="list-group-item list-group-item-primary border-0 btn rounded-0 btn-default" data-toggle="modal" data-target="#updateChapter{{chapter.pk}}">
-                &#9998;
-              </button>
+              <li class="btn-group dropright" role="group">
+                <button
+                  id="btnGroupDrop1"
+                  type="button"
+                  class="btn btn-default list-group-item list-group-item-secondary border-0 rounded-0 dropdown-toggle"
+                  data-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                >
+                  &#9776;
+                </button>
+                <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                  <button
+                    type="button"
+                    class="dropdown-item"
+                    data-toggle="modal"
+                    data-target="#updateChapter{{chapter.pk}}"
+                  >
+                    &#9999; редактировать блок
+                  </button>
+                  <button
+                    type="button"
+                    class="dropdown-item"
+                    data-toggle="modal"
+                    data-target="#deleteChapter{{chapter.pk}}"
+                  >
+                    &#10060; удалить блок
+                  </button>
+                </div>
+              </li>
               {% endif %}
             </ul>
 
-            {% for lesson in chapter.chapter_lessons.all %}
+            {% for lesson in chapter.chapter_lessons.all|dictsort:"number" %}
               <a
                 href="{% url 'courses:lessons' pk=course.pk %}?lesson_id={{lesson.id}}"
-                class="btn rounded-0 btn-{% if active_lesson == lesson %}info{% else %}outline-default{% endif %}"
-              >Занятие {{lesson.number}}: {{lesson.title}}</a>
+                class="rounded-0 text-left btn btn-{% if active_lesson == lesson %}secondary{% else %}outline-default{% endif %}"
+              ><small>Урок {{lesson.number}}: {{lesson.title}}</small></a>
             {% endfor %}
 
             {% if user.is_superuser %}
@@ -84,7 +138,7 @@
               <div class="modal-dialog" role="document">
                 <div class="modal-content">
                   <div class="modal-header bg-info">
-                    <h5 class="modal-title">Добавление занятия</h5>
+                    <h5 class="modal-title">Добавление урока</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                       <span aria-hidden="true">&times;</span>
                     </button>
@@ -110,8 +164,8 @@
                 </div>
               </div>
             </div>
-            <button type="button" class="btn btn-light rounded-0" data-toggle="modal" data-target="#addLesson{{chapter.id}}">
-              Добавить занятие
+            <button type="button" class="btn btn-light rounded-bottom rounded-lg" data-toggle="modal" data-target="#addLesson{{chapter.id}}">
+              Добавить урок
             </button>
             {% endif %}
 
@@ -145,7 +199,7 @@
               </div>
             </div>
           </div>
-          <button type="button" class="btn btn-info" data-toggle="modal" data-target="#addChapter">
+          <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#addChapter">
             Добавить блок
           </button>
           {% endif %}
@@ -155,31 +209,78 @@
       <!-- Content Column -->
       <div class="col-lg-9 mb-4">
 
-        <h2>
-          {{active_lesson.title|capitalize}}
-          {% if user.is_superuser or user in course.teachers.all %}
-          <small><a href="{% url 'courses:update_lesson' pk=active_lesson.pk %}"><small>&#9998;</small></a></small>
-          {% endif %}
-        </h2>
-        <p>{{active_lesson.description|safe|linebreaks}}</p>
-        <p class="mb-5"><b>Ориентировочное время освоения: {{active_lesson.estimated_time_min}} минут</b></p>
+        <div class="bg-light rounded-lg p-4 mb-4">
 
+          <div class="modal" tabindex="-1" id="deleteActiveLessonConfirm" role="dialog">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header bg-danger">
+                  <h5 class="modal-title">Подтвердите удаление урока {{active_lesson.number}}: <br/> "{{active_lesson.title|capitalize}}"</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  Внимание! Удаление урока повлечет за собой удаление всех сданных домашних работ, связанных с этим уроком!
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                  <form method="post" action="{% url 'courses:delete_lesson' pk=active_lesson.pk %}">
+                    {% csrf_token %}
+                    <button
+                      type="submit"
+                      class="btn btn-danger"
+                    >
+                      &#10060; удалить
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <h2>
+            {{active_lesson.title|capitalize}}
+            {% if user.is_superuser or user in course.teachers.all %}
+            <button type="button" class="btn btn-light float-right" data-toggle="modal" data-target="#deleteActiveLessonConfirm">
+              &#10060; удалить урок
+            </button>
+            <button
+              class="btn btn-light float-right"
+            >
+              <a class="text-dark text-decoration-none" href="{% url 'courses:update_lesson' pk=active_lesson.pk %}">
+                &#9999; редактировать урок
+              </a>
+            </button>
+            {% endif %}
+          </h2>
+          <p class="mb-1"><b>Ориентировочное время освоения: {{active_lesson.estimated_time_min}} минут</b></p>
+          <p>{{active_lesson.description|safe|linebreaks}}</p>
+        </div>
+
+        <div class="mb-4">
         {% with lesson_homework=active_lesson.get_homework %}
           {% if lesson_homework %}
-            <h4>
-              Домашнее задание ({{lesson_homework.points}} очков):
-              {% if user.is_superuser or user in course.teachers.all %}
-              <small>
-                <a href="{% url 'courses:update_homework' pk=lesson_homework.pk %}"><small>&#9998;</small></a>
-              </small>
-              {% endif %}
-            </h4>
-            <p>{{lesson_homework.text}}</p>
+            <div class="bg-light rounded-lg p-4">
+              <h4>
+                Домашнее задание ({{lesson_homework.points}} очков):
+                {% if user.is_superuser or user in course.teachers.all %}
+                <a href="{% url 'courses:update_homework' pk=lesson_homework.pk %}">
+                  <button
+                    class="btn btn-light"
+                  >
+                    &#9999; редактировать
+                  </button>
+                </a>
+                {% endif %}
+              </h4>
+              <p>{{lesson_homework.text}}</p>
+            </div>
             
             {% if user in course.students.all and user not in lesson_homework.get_responded_students %}
             <div class="card my-4">
               <h5 class="card-header">Ваш ответ:</h5>
-              <div class="card-body">
+              <div class="card-body bg-light">
                 <form enctype="multipart/form-data" action="{% url 'courses:hw_respond' course_id=course.id lesson_id=active_lesson.id %}" method="post">
                   <div class="form-group">
                     {% csrf_token %}
@@ -187,7 +288,7 @@
                     <br>
                     {{hw_respond_form.file_attachment}}
                   </div>
-                  <button type="submit" class="btn btn-primary">Отправить ответ</button>
+                  <button type="submit" class="btn btn-outline-primary">Отправить ответ</button>
                 </form>
               </div>
             </div>
@@ -198,23 +299,25 @@
               <h5 class="card-header">
                 <span>Ответ ученика {{hw_respond.student}}</span>
                 {% if hw_respond.is_accepted %}
-                  <span class="badge badge-success float-right">Принято</span>
+                  <span class="badge badge-success float-right"><small>Принято</small></span>
                 {% else %}
-                  <span class="badge badge-secondary float-right">Ожидает проверки</span>
+                  <span class="badge badge-light border border-secondary float-right"><small>Ожидает проверки</small></span>
                 {% endif %}
               </h5>
-              <div class="card-body">
+              <div class="card-body bg-light">
                 <p>{{hw_respond.text}}</p>
                 <p>
+                  {% if hw_respond.file_attachment %}
                   <a href="{{hw_respond.file_attachment.url}}" download >
-                    <button class="btn btn-sm btn-info">Скачать вложение</button>
+                    <button class="btn btn-sm btn-outline-dark">Скачать вложение</button>
                   </a>
+                  {% endif %}
                 </p>
-                <span class="badge badge-pill badge-light">Отправлено {{hw_respond.created}}</span>
+                <span class="badge badge-pill badge-light border border-secondary"><small>Отправлено {{hw_respond.created}}</small></span>
                 {% if user in course.teachers.all and not hw_respond.is_accepted %}
                 <form class="float-right" method='post' action="{% url 'courses:accept_hw_respond' hw_respond_id=hw_respond.id %}">
                   {% csrf_token %}
-                  <button type="submit" class="btn btn-sm btn-primary">
+                  <button type="submit" class="btn btn-sm btn-outline-success">
                     Принять работу
                   </button>
                 </form>
@@ -224,7 +327,9 @@
 
             {% for commentary in hw_respond.homework_respond_commentaries.all|dictsort:"created" %}
               <div class="media ml-5 mb-3">
-                <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
+                {% if commentary.author.avatar %}
+                  <img class="d-flex mr-3 rounded-circle" style="width:50px;height:50px;" src="{{commentary.author.avatar.url}}" alt="profile_picture">
+                {% endif %}
                 <div class="media-body">
                   <h5 class="mt-0">{{commentary.author}}</h5>
                   {{commentary.text}}
@@ -232,18 +337,21 @@
               </div>
             {% endfor %}
 
+            {% if user in course.students.all or user in course.teachers.all %}
             <form class="ml-5" method="post" action="{% url 'courses:hw_respond_commentary' hw_respond_id=hw_respond.id %}">
               <div class="form-group">
                 {% csrf_token %}
                 {{commentary_form.text}}
               </div>
-              <button type="submit" class="btn btn-sm btn-primary">Добавить комментарий</button>
+              <button type="submit" class="btn btn-sm btn-outline-primary">Добавить комментарий</button>
             </form>
+            {% endif %}
 
             {% endfor %}
             
           {% endif %}
         {% endwith %}
+        </div>
         
       </div>
     </div>

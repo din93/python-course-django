@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}
+  Главная
+{% endblock %}
+
+{% block page_style %}
+<style>
+  .white-glow {
+    text-shadow: 2px 2px 22px #000000;
+  }
+</style>
+{% endblock %}
+
+{% block header_block %}
+<div
+  class="d-flex flex-column align-items-center justify-content-center vh-100 text-light"
+  style="background: url('{% static 'img/nick-morrison-FHnnjk1Yj7Y.jpg' %}') no-repeat left top;"
+>
+  <h3 class="display-4 font-weight-bold text-monospace text-center white-glow w-75">
+    Платформа для проведения онлайн тренингов
+  </h3>
+  <p class="display-4 white-glow">
+    <a class="btn btn-lg btn-danger btn-block" href="{% url 'courses:list' %}">Начать обучение</a>
+  </p>
+</div>
+{% endblock %}
+
+{% block page_heading %}
+{% endblock %}
+
+{% block page_breadcrumb %}
+{% endblock %}
+
+{% block page_content %}
+
+<div class="d-flex flex-row align-items-center justify-content-around" style="height: 15em;">
+  <div class="display-4 text-center">
+    {{courses_count}} тренингов
+  </div>
+  <div class="display-4 text-center">
+    {{users_count}} пользователей
+  </div>
+  <div class="display-4 text-center">
+    {{hw_responds_count}} сданных работ
+  </div>
+</div>
+
+{% endblock %}

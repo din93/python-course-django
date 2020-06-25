@@ -7,7 +7,7 @@ class HomeWorkRespondForm(forms.ModelForm):
         fields = ['text', 'file_attachment']
 
         widgets = {
-            'text': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'text': forms.Textarea(attrs={'class': 'form-control bg-light', 'rows': 3}),
         }
 
 class CourseForm(forms.ModelForm):
@@ -53,5 +53,5 @@ class HWRespondCommentaryForm(forms.ModelForm):
         fields = ['text']
 
         widgets = {
-            'text': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Добавить комментарий'}),
+            'text': forms.TextInput(attrs={'class': 'form-control bg-light', 'placeholder': 'Добавить комментарий'}),
         }

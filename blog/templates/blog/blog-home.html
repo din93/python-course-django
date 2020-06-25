@@ -13,9 +13,6 @@
 
     {% block page_breadcrumb %}
     <ol class="breadcrumb">
-      <li class="breadcrumb-item">
-        <a href="/">Домашняя страница</a>
-      </li>
       <li class="breadcrumb-item active">Блог сайта</li>
       {% if request.GET.search %}
         <li class="breadcrumb-item active">Поиск по тексту "{{request.GET.search}}" (<a href="{% url 'blog:home' %}">Отменить поиск</a>)</li>
