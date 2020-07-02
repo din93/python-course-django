@@ -5,13 +5,12 @@
 {% endblock %}
 
     {% block page_heading %}
-    <h1 class="mt-4 mb-3">
+    <h1 class="mt-4 mb-4 display-4 d-inline-block">
       Список тренингов
-      {% if user.is_superuser %}
-      <br>
-      <small><a href="{% url 'courses:create_course' %}">Добавить тренинг</a></small>
-      {% endif %}
     </h1>
+    {% if user.is_superuser %}
+      <a class='h5' href="{% url 'courses:create_course' %}">Добавить тренинг</a>
+    {% endif %}
     {% endblock %}
 
     {% block page_breadcrumb %}

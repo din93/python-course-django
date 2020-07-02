@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.contrib.auth.views import LoginView, reverse_lazy
 from django.urls import reverse
 from django.views.generic import CreateView, DetailView
-from users.forms import LoginUserForm, RegistrationForm
+from users.forms import LoginUserForm, RegistrationForm, UpdateAvatarForm
 from users.models import CoursesUser
 from courses.models import Course
 from rest_framework.authtoken.models import Token
@@ -29,6 +29,7 @@ class UserDetailView(LoginRequiredMixin, DetailView):
 
         context['student_courses'] = Course.objects.filter(Q(students__pk=self.request.user.pk))
         context['teacher_courses'] = Course.objects.filter(Q(teachers__pk=self.request.user.pk))
+        context['update_avatar_form'] = UpdateAvatarForm
         return context
 
 @api_view(['POST'])
@@ -38,3 +39,12 @@ def update_token(request):
         user.auth_token.delete()
     Token.objects.create(user=user)
     return HttpResponseRedirect(reverse('users:profile', kwargs={'pk': user.pk}))
+
+@api_view(['POST'])
+def update_avatar(request):
+    form = UpdateAvatarForm(request.POST, request.FILES)
+    if form.is_valid():
+        request.user.avatar = form.cleaned_data['avatar']
+        request.user.save()
+
+    return HttpResponseRedirect(reverse('users:profile', kwargs={'pk': request.user.pk}))

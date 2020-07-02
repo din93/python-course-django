@@ -21,4 +21,9 @@ class LoginUserForm(forms.ModelForm):
 class RegistrationForm(UserCreationForm):
     class Meta:
         model = CoursesUser
-        fields = ['email', 'username', 'avatar', 'password1', 'password2']
+        fields = ['email', 'username', 'password1', 'password2']
+
+class UpdateAvatarForm(forms.ModelForm):
+    class Meta:
+        model = CoursesUser
+        fields = ['avatar']

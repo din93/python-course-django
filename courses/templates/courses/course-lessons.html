@@ -89,7 +89,7 @@
           <div class="list-group bg-light">
 
             <ul class="list-group list-group-horizontal">
-              <li class="list-group-item list-group-item-secondary text-dark border-0 rounded-0">
+              <li class="list-group-item list-group-item-secondary text-dark border-0 rounded-0 w-100">
                 Блок {{chapter.number}}: {{chapter.title}}
               </li>
               {% if user.is_superuser or user in course.teachers.all %}
@@ -274,7 +274,7 @@
                 </a>
                 {% endif %}
               </h4>
-              <p>{{lesson_homework.text}}</p>
+              <p>{{lesson_homework.text|safe|linebreaks}}</p>
             </div>
             
             {% if user in course.students.all and user not in lesson_homework.get_responded_students %}

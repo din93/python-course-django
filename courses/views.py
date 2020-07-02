@@ -147,6 +147,39 @@ class CourseDetailView(DetailView):
     template_name = 'courses/course-detail.html'
     context_object_name = 'course'
 
+class RequestCourseParticipationView(LoginRequiredMixin, View):
+    def get(self, request, course_id):
+        course = get_object_or_404(models.Course, id=course_id)
+        if not course.teachers.filter(id=self.request.user.id).exists() or not course.students.filter(id=self.request.user.id).exists():
+            course.participation_requests.add(self.request.user)
+            course.save()
+
+        return HttpResponseRedirect(reverse('courses:detail', kwargs = {'pk': course.pk}))
+
+class AddTeacherView(LoginRequiredMixin, View):
+    def get(self, request, course_id, user_id):
+        course = get_object_or_404(models.Course, id=course_id)
+        if self.request.user.is_superuser or course.teachers.filter(id=self.request.user.id).exists():
+            user = get_object_or_404(models.CoursesUser, id=user_id)
+            course.teachers.add(user)
+            if course.participation_requests.filter(id=user.id).exists():
+                course.participation_requests.remove(user)
+            course.save()
+
+        return HttpResponseRedirect(reverse('courses:detail', kwargs = {'pk': course.pk}))
+
+class AddStudentView(LoginRequiredMixin, View):
+    def get(self, request, course_id, user_id):
+        course = get_object_or_404(models.Course, id=course_id)
+        if self.request.user.is_superuser or course.teachers.filter(id=self.request.user.id).exists():
+            user = get_object_or_404(models.CoursesUser, id=user_id)
+            course.students.add(user)
+            if course.participation_requests.filter(id=user.id).exists():
+                course.participation_requests.remove(user)
+            course.save()
+
+        return HttpResponseRedirect(reverse('courses:detail', kwargs = {'pk': course.pk}))
+
 class CourseLessonsView(UserPassesTestMixin, DetailView):
     model = models.Course
     template_name = 'courses/course-lessons.html'

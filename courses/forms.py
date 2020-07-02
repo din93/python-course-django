@@ -13,7 +13,7 @@ class HomeWorkRespondForm(forms.ModelForm):
 class CourseForm(forms.ModelForm):
     class Meta:
         model = Course
-        fields = '__all__'
+        exclude = ['teachers', 'students', 'participation_requests']
 
 class CourseChapterForm(forms.ModelForm):
     class Meta:

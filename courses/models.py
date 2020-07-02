@@ -27,6 +27,7 @@ class Course(TimeStamp, HideableMixin):
     prereqs = models.TextField(blank=True)
     teachers = models.ManyToManyField(CoursesUser, related_name='teacher_courses', blank=True)
     students = models.ManyToManyField(CoursesUser, related_name='student_courses', blank=True)
+    participation_requests = models.ManyToManyField(CoursesUser, related_name='participation_requests_courses', blank=True)
 
     def __str__(self):
         return self.title
