@@ -305,7 +305,7 @@
                 {% endif %}
               </h5>
               <div class="card-body bg-light">
-                <p>{{hw_respond.text}}</p>
+                <p>{{hw_respond.text|safe|linebreaks}}</p>
                 <p>
                   {% if hw_respond.file_attachment %}
                   <a href="{{hw_respond.file_attachment.url}}" download >

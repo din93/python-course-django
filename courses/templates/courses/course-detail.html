@@ -64,13 +64,15 @@
       <ul class="list-group list-group-vertical rounded-lg py-2">
       {% for requested_user in course.participation_requests.all %}
         <li class="list-group-item list-group-item-white rounded-md my-2 shadow-sm">
-          <b>{{requested_user}}</b>
-          <a
-            class="btn btn-sm btn-link text-info float-right ml-1"
-            href="{% url 'courses:add_teacher' course_id=course.id user_id=requested_user.id %}"
-          >
-            Добавить как преподавателя
-          </a>
+          <div><b>{{requested_user}}</b></div>
+          {% if user.is_superuser %}
+            <a
+              class="btn btn-sm btn-link text-info float-right ml-1"
+              href="{% url 'courses:add_teacher' course_id=course.id user_id=requested_user.id %}"
+            >
+              Добавить как преподавателя
+            </a>
+          {% endif %}
           <a
             class="btn btn-sm btn-link text-success float-right ml-1"
             href="{% url 'courses:add_student' course_id=course.id user_id=requested_user.id %}"
